@@ -1,6 +1,11 @@
-import { getDb } from "../../../../db";
-import { users, sessions } from "../../../../db/schema";
-import { eq } from "drizzle-orm";
+// Simple in-memory database for development
+if (!(globalThis as any).__memoryDb) {
+  (globalThis as any).__memoryDb = {
+    users: [] as any[],
+    sessions: [] as any[],
+  };
+}
+const memoryDb = (globalThis as any).__memoryDb;
 
 export async function GET(request: Request) {
   try {
@@ -13,27 +18,20 @@ export async function GET(request: Request) {
       );
     }
 
-    const db = getDb();
-    
     // Find session
-    const sessionResult = await db
-      .select()
-      .from(sessions)
-      .where(eq(sessions.token, token))
-      .limit(1);
+    const session = memoryDb.sessions.find((s: any) => s.token === token);
+    console.log(`Auth check: Looking for session with token, found: ${!!session}`);
 
-    if (sessionResult.length === 0) {
+    if (!session) {
       return Response.json(
         { error: "Invalid token" },
         { status: 401 }
       );
     }
 
-    const session = sessionResult[0];
-
     // Check if session is expired
     if (new Date(session.expiresAt) < new Date()) {
-      await db.delete(sessions).where(eq(sessions.token, token));
+      memoryDb.sessions = memoryDb.sessions.filter((s: any) => s.token !== token);
       return Response.json(
         { error: "Session expired" },
         { status: 401 }
@@ -41,20 +39,15 @@ export async function GET(request: Request) {
     }
 
     // Get user
-    const userResult = await db
-      .select()
-      .from(users)
-      .where(eq(users.id, session.userId))
-      .limit(1);
+    const user = memoryDb.users.find((u: any) => u.id === session.userId);
+    console.log(`Auth check: Looking for user with id ${session.userId}, found: ${!!user}`);
 
-    if (userResult.length === 0) {
+    if (!user) {
       return Response.json(
         { error: "User not found" },
         { status: 404 }
       );
     }
-
-    const user = userResult[0];
 
     // Return user without password
     const { password: _, ...userWithoutPassword } = user;

@@ -1,6 +1,11 @@
-import { getDb } from "../../../../db";
-import { sessions } from "../../../../db/schema";
-import { eq } from "drizzle-orm";
+// Simple in-memory database for development
+if (!(globalThis as any).__memoryDb) {
+  (globalThis as any).__memoryDb = {
+    users: [] as any[],
+    sessions: [] as any[],
+  };
+}
+const memoryDb = (globalThis as any).__memoryDb;
 
 export async function POST(request: Request) {
   try {
@@ -12,13 +17,10 @@ export async function POST(request: Request) {
         { status: 400 }
       );
     }
-
-    const db = getDb();
     
     // Delete session
-    await db
-      .delete(sessions)
-      .where(eq(sessions.token, token));
+    memoryDb.sessions = memoryDb.sessions.filter((s: any) => s.token !== token);
+    console.log(`Logout: Session removed. Total sessions: ${memoryDb.sessions.length}`);
 
     return Response.json({ message: "Logout successful" });
   } catch (error) {

@@ -1,8 +1,14 @@
-import { getDb } from "../../../../db";
-import { users, sessions } from "../../../../db/schema";
-import { eq } from "drizzle-orm";
-import { hash, compare } from "bcryptjs";
+import { compare } from "bcryptjs";
 import { randomBytes } from "crypto";
+
+// Simple in-memory database for development
+if (!(globalThis as any).__memoryDb) {
+  (globalThis as any).__memoryDb = {
+    users: [] as any[],
+    sessions: [] as any[],
+  };
+}
+const memoryDb = (globalThis as any).__memoryDb;
 
 export async function POST(request: Request) {
   try {
@@ -14,27 +20,30 @@ export async function POST(request: Request) {
         { status: 400 }
       );
     }
-
-    const db = getDb();
     
     // Find user
-    const userResult = await db
-      .select()
-      .from(users)
-      .where(eq(users.email, email))
-      .limit(1);
+    const user = memoryDb.users.find((u: any) => u.email === email);
+    console.log(`Login: Looking for user with email ${email}, found: ${!!user}`);
 
-    if (userResult.length === 0) {
+    if (!user) {
       return Response.json(
         { error: "Invalid credentials" },
         { status: 401 }
       );
     }
 
-    const user = userResult[0];
-
-    // Verify password
-    const isValidPassword = await compare(password, user.password);
+    // Verify password (skip bcrypt for development mock)
+    let isValidPassword = false;
+    if (typeof (globalThis as any).DB !== "undefined") {
+      // Production: use bcrypt
+      isValidPassword = await compare(password, user.password);
+    } else {
+      // Development: plain text comparison
+      isValidPassword = password === user.password;
+    }
+    
+    console.log(`Login: Password valid: ${isValidPassword}`);
+    
     if (!isValidPassword) {
       return Response.json(
         { error: "Invalid credentials" },
@@ -47,11 +56,15 @@ export async function POST(request: Request) {
     const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(); // 7 days
 
     // Save session
-    await db.insert(sessions).values({
+    const newSession = {
+      id: Date.now(),
       userId: user.id,
       token,
       expiresAt,
-    });
+      createdAt: new Date().toISOString(),
+    };
+    memoryDb.sessions.push(newSession);
+    console.log(`Login: Session created. Total sessions: ${memoryDb.sessions.length}`);
 
     // Return user without password
     const { password: _, ...userWithoutPassword } = user;

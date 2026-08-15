@@ -1,7 +1,13 @@
-import { getDb } from "../../../../db";
-import { users } from "../../../../db/schema";
-import { eq } from "drizzle-orm";
 import { hash } from "bcryptjs";
+
+// Simple in-memory database for development
+if (!(globalThis as any).__memoryDb) {
+  (globalThis as any).__memoryDb = {
+    users: [] as any[],
+    sessions: [] as any[],
+  };
+}
+const memoryDb = (globalThis as any).__memoryDb;
 
 export async function POST(request: Request) {
   try {
@@ -13,36 +19,32 @@ export async function POST(request: Request) {
         { status: 400 }
       );
     }
-
-    const db = getDb();
     
     // Check if user already exists
-    const existingUser = await db
-      .select()
-      .from(users)
-      .where(eq(users.email, email))
-      .limit(1);
-
-    if (existingUser.length > 0) {
+    const existingUser = memoryDb.users.find((u: any) => u.email === email);
+    if (existingUser) {
       return Response.json(
         { error: "User already exists" },
         { status: 409 }
       );
     }
 
-    // Hash password
-    const hashedPassword = await hash(password, 10);
+    // Hash password (skip for development mock)
+    const hashedPassword = typeof (globalThis as any).DB !== "undefined" 
+      ? await hash(password, 10) 
+      : password;
 
     // Create user
-    const [newUser] = await db
-      .insert(users)
-      .values({
-        email,
-        password: hashedPassword,
-        name,
-        role,
-      })
-      .returning();
+    const newUser = {
+      id: Date.now(),
+      email,
+      password: hashedPassword,
+      name,
+      role,
+      createdAt: new Date().toISOString(),
+    };
+    memoryDb.users.push(newUser);
+    console.log(`User registered: ${email}, total users: ${memoryDb.users.length}`);
 
     // Return user without password
     const { password: _, ...userWithoutPassword } = newUser;
