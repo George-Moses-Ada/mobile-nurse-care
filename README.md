@@ -7,6 +7,7 @@ through a Paystack-ready checkout flow. A nurse dashboard is also included.
 
 ## Included features
 
+
 - Responsive patient landing page
 - Six nursing service cards with Nigerian naira pricing
 - Home-visit and online-consultation options
