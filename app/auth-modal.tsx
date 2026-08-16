@@ -8,15 +8,19 @@ type AuthModalProps = {
   defaultMode?: "login" | "register";
 };
 
+type AuthMode = "login" | "register" | "verify";
+
 export function AuthModal({ isOpen, onClose, defaultMode = "login" }: AuthModalProps) {
-  const [mode, setMode] = useState<"login" | "register">(defaultMode);
+  const [mode, setMode] = useState<AuthMode>(defaultMode);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
   const [role, setRole] = useState<"patient" | "nurse">("patient");
+  const [verificationCode, setVerificationCode] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  const { login, register } = useAuth();
+  const [message, setMessage] = useState("");
+  const { login, register, sendVerification, verifyEmail } = useAuth();
 
   if (!isOpen) return null;
 
@@ -28,12 +32,36 @@ export function AuthModal({ isOpen, onClose, defaultMode = "login" }: AuthModalP
     try {
       if (mode === "login") {
         await login(email, password);
-      } else {
+        onClose();
+      } else if (mode === "register") {
         await register(email, password, name, role);
+        // Send verification code after registration
+        const code = await sendVerification(email);
+        setMessage(`Verification code sent to ${email}. For development, your code is: ${code}`);
+        setMode("verify");
+      } else if (mode === "verify") {
+        await verifyEmail(email, verificationCode);
+        setMessage("Email verified successfully! You can now sign in.");
+        setTimeout(() => {
+          setMode("login");
+          setMessage("");
+        }, 2000);
       }
-      onClose();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Authentication failed");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleResendCode = async () => {
+    setError("");
+    setLoading(true);
+    try {
+      const code = await sendVerification(email);
+      setMessage(`New verification code sent. For development, your code is: ${code}`);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to send code");
     } finally {
       setLoading(false);
     }
@@ -44,13 +72,18 @@ export function AuthModal({ isOpen, onClose, defaultMode = "login" }: AuthModalP
       <div className="modal">
         <div className="modal-head">
           <div>
-            <span className="kicker">{mode === "login" ? "SIGN IN" : "CREATE ACCOUNT"}</span>
-            <h2>{mode === "login" ? "Welcome back" : "Join Mobile Nurse Care"}</h2>
+            <span className="kicker">
+              {mode === "login" ? "SIGN IN" : mode === "register" ? "CREATE ACCOUNT" : "VERIFY EMAIL"}
+            </span>
+            <h2>
+              {mode === "login" ? "Welcome back" : mode === "register" ? "Join Mobile Nurse Care" : "Verify your email"}
+            </h2>
           </div>
           <button onClick={onClose}>×</button>
         </div>
         <form onSubmit={handleSubmit} className="form-body">
           {error && <div className="error-message">{error}</div>}
+          {message && <div className="success-message">{message}</div>}
           
           {mode === "register" && (
             <>
@@ -104,12 +137,41 @@ export function AuthModal({ isOpen, onClose, defaultMode = "login" }: AuthModalP
             minLength={6}
           />
           
+          {mode === "verify" && (
+            <>
+              <label>Verification code</label>
+              <input
+                type="text"
+                value={verificationCode}
+                onChange={(e) => setVerificationCode(e.target.value)}
+                required
+                placeholder="Enter 6-digit code"
+                maxLength={6}
+                pattern="[0-9]{6}"
+              />
+              <button 
+                type="button" 
+                onClick={handleResendCode} 
+                disabled={loading}
+                className="text-link"
+              >
+                Resend code
+              </button>
+            </>
+          )}
+          
           <button type="submit" className="primary wide" disabled={loading}>
-            {loading ? "Processing..." : mode === "login" ? "Sign In" : "Create Account"}
+            {loading ? "Processing..." : mode === "login" ? "Sign In" : mode === "register" ? "Create Account" : "Verify Email"}
           </button>
         </form>
         <div className="modal-foot">
-          {mode === "login" ? (
+          {mode === "verify" ? (
+            <p>
+              <button type="button" onClick={() => setMode("login")}>
+                Back to sign in
+              </button>
+            </p>
+          ) : mode === "login" ? (
             <p>
               Don't have an account?{" "}
               <button type="button" onClick={() => setMode("register")}>

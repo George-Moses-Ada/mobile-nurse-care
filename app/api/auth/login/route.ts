@@ -32,22 +32,22 @@ export async function POST(request: Request) {
       );
     }
 
-    // Verify password (skip bcrypt for development mock)
-    let isValidPassword = false;
-    if (typeof (globalThis as any).DB !== "undefined") {
-      // Production: use bcrypt
-      isValidPassword = await compare(password, user.password);
-    } else {
-      // Development: plain text comparison
-      isValidPassword = password === user.password;
-    }
-    
+    // Verify password
+    const isValidPassword = await compare(password, user.password);
     console.log(`Login: Password valid: ${isValidPassword}`);
     
     if (!isValidPassword) {
       return Response.json(
         { error: "Invalid credentials" },
         { status: 401 }
+      );
+    }
+
+    // Check if email is verified
+    if (user.emailVerified === 0) {
+      return Response.json(
+        { error: "Please verify your email before signing in" },
+        { status: 403 }
       );
     }
 
