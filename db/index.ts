@@ -11,13 +11,13 @@ if (!(globalThis as any).__memoryDb) {
 const memoryDb = (globalThis as any).__memoryDb;
 
 export function getDb() {
-  // Check if running in Cloudflare environment
+  // Check if running in Cloudflare environment with D1 database
   if (typeof (globalThis as any).DB !== "undefined") {
     const db = (globalThis as any).DB;
     return drizzle(db, { schema });
   }
   
-  // Use simple mock database for development
+  // Use simple mock database for local development
   return {
     select: (table: any) => ({
       from: (t: any) => ({
@@ -115,6 +115,41 @@ export function getDb() {
           }
           return [newItem];
         }
+      })
+    }),
+    update: (table: any) => ({
+      set: (data: any) => ({
+        where: (condition: any) => ({
+          returning: () => {
+            let value = null;
+            let column = null;
+            
+            if (condition && typeof condition === 'object') {
+              const keys = Object.keys(condition);
+              if (keys.length > 0) {
+                column = keys[0];
+                value = condition[column];
+              }
+            }
+            
+            let tableName = 'unknown';
+            if (table === schema.users) {
+              tableName = 'users';
+            } else if (table?.name) {
+              tableName = table.name;
+            }
+            
+            if (tableName === 'users' && column === 'email' && value) {
+              const user = memoryDb.users.find((u: any) => u.email === value);
+              if (user) {
+                Object.assign(user, data);
+                console.log(`DB UPDATE - user updated: ${value}`);
+                return [user];
+              }
+            }
+            return [];
+          }
+        })
       })
     }),
     delete: (table: any) => ({

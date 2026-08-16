@@ -15,6 +15,8 @@ type AuthContextType = {
   login: (email: string, password: string) => Promise<void>;
   register: (email: string, password: string, name: string, role?: string) => Promise<void>;
   logout: () => Promise<void>;
+  sendVerification: (email: string) => Promise<string>;
+  verifyEmail: (email: string, code: string) => Promise<void>;
   loading: boolean;
 };
 
@@ -109,8 +111,37 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     localStorage.removeItem("auth_token");
   };
 
+  const sendVerification = async (email: string) => {
+    const response = await fetch("/api/auth/send-verification", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email }),
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.error || "Failed to send verification code");
+    }
+
+    const data = await response.json();
+    return data.code;
+  };
+
+  const verifyEmail = async (email: string, code: string) => {
+    const response = await fetch("/api/auth/verify-email", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, code }),
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.error || "Failed to verify email");
+    }
+  };
+
   return (
-    <AuthContext.Provider value={{ user, token, login, register, logout, loading }}>
+    <AuthContext.Provider value={{ user, token, login, register, logout, sendVerification, verifyEmail, loading }}>
       {children}
     </AuthContext.Provider>
   );

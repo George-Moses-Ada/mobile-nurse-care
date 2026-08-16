@@ -7,6 +7,9 @@ export const users = sqliteTable("users", {
   password: text("password").notNull(),
   name: text("name").notNull(),
   role: text("role").notNull().default("patient"), // "patient" or "nurse"
+  emailVerified: integer("email_verified").notNull().default(0), // 0 = not verified, 1 = verified
+  verificationCode: text("verification_code"), // 6-digit code for email verification
+  verificationCodeExpiresAt: text("verification_code_expires_at"),
   createdAt: text("created_at").notNull().default(sql`CURRENT_TIMESTAMP`),
 });
 

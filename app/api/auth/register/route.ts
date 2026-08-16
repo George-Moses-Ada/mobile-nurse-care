@@ -41,6 +41,9 @@ export async function POST(request: Request) {
       password: hashedPassword,
       name,
       role,
+      emailVerified: 0,
+      verificationCode: null,
+      verificationCodeExpiresAt: null,
       createdAt: new Date().toISOString(),
     };
     memoryDb.users.push(newUser);
