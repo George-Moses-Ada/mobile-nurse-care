@@ -1,4 +1,5 @@
 import { randomBytes } from "crypto";
+import { Resend } from "resend";
 
 // Simple in-memory database for development
 if (!(globalThis as any).__memoryDb) {
@@ -8,6 +9,9 @@ if (!(globalThis as any).__memoryDb) {
   };
 }
 const memoryDb = (globalThis as any).__memoryDb;
+
+// Initialize Resend
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 export async function POST(request: Request) {
   try {
@@ -38,13 +42,39 @@ export async function POST(request: Request) {
     user.verificationCode = verificationCode;
     user.verificationCodeExpiresAt = expiresAt;
 
-    console.log(`Verification code sent to ${email}: ${verificationCode}`);
+    console.log(`Verification code for ${email}: ${verificationCode}`);
+
+    // Send email using Resend
+    if (process.env.RESEND_API_KEY) {
+      try {
+        await resend.emails.send({
+          from: "Mobile Nurse Care <onboarding@resend.dev>",
+          to: email,
+          subject: "Verify your email address",
+          html: `
+            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+              <h2 style="color: #0a7768;">Verify your email address</h2>
+              <p>Thank you for signing up for Mobile Nurse Care. Please use the following verification code to verify your email address:</p>
+              <div style="background: #eaf7f2; padding: 20px; text-align: center; border-radius: 8px; margin: 20px 0;">
+                <span style="font-size: 32px; font-weight: bold; color: #0a7768; letter-spacing: 4px;">${verificationCode}</span>
+              </div>
+              <p>This code will expire in 15 minutes.</p>
+              <p>If you didn't request this verification code, please ignore this email.</p>
+              <p>Best regards,<br>Mobile Nurse Care Team</p>
+            </div>
+          `,
+        });
+        console.log(`Email sent to ${email}`);
+      } catch (emailError) {
+        console.error("Failed to send email:", emailError);
+        // Continue even if email fails - user can still use the code if they have it
+      }
+    }
     
-    // In production, you would send an email here
-    // For now, we'll return the code in the response for development
     return Response.json({ 
-      message: "Verification code sent",
-      code: verificationCode // Remove this in production
+      message: "Verification code sent to your email",
+      // Only return code in development if no API key is set
+      ...(process.env.NODE_ENV === 'development' && !process.env.RESEND_API_KEY && { code: verificationCode })
     });
   } catch (error) {
     console.error("Send verification error:", error);

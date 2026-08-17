@@ -7,5 +7,15 @@
   "assets": {
     "directory": ".open-next/assets",
     "binding": "ASSETS"
+  },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "mobile-nurse-care-db",
+      "database_id": "85e3ee97-4431-485c-8429-a60b99f43076"
+    }
+  ],
+  "vars": {
+    "NODE_ENV": "production"
   }
 }

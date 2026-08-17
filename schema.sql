@@ -1,0 +1,64 @@
+-- Users table
+CREATE TABLE IF NOT EXISTS users (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  email TEXT NOT NULL UNIQUE,
+  password TEXT NOT NULL,
+  name TEXT NOT NULL,
+  role TEXT NOT NULL DEFAULT 'patient',
+  emailVerified INTEGER NOT NULL DEFAULT 0,
+  verificationCode TEXT,
+  verificationCodeExpiresAt TEXT,
+  createdAt TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Sessions table
+CREATE TABLE IF NOT EXISTS sessions (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  userId INTEGER NOT NULL,
+  token TEXT NOT NULL UNIQUE,
+  expiresAt TEXT NOT NULL,
+  createdAt TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (userId) REFERENCES users(id)
+);
+
+-- Services table
+CREATE TABLE IF NOT EXISTS services (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  name TEXT NOT NULL,
+  description TEXT NOT NULL,
+  icon TEXT NOT NULL,
+  price INTEGER NOT NULL,
+  duration TEXT NOT NULL,
+  modes TEXT NOT NULL,
+  createdAt TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Appointments table
+CREATE TABLE IF NOT EXISTS appointments (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  userId INTEGER NOT NULL,
+  serviceId INTEGER NOT NULL,
+  patientName TEXT NOT NULL,
+  patientEmail TEXT NOT NULL,
+  patientPhone TEXT NOT NULL,
+  address TEXT NOT NULL,
+  date TEXT NOT NULL,
+  time TEXT NOT NULL,
+  notes TEXT,
+  status TEXT NOT NULL DEFAULT 'pending',
+  createdAt TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (userId) REFERENCES users(id),
+  FOREIGN KEY (serviceId) REFERENCES services(id)
+);
+
+-- Availability table
+CREATE TABLE IF NOT EXISTS availability (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  nurseId INTEGER NOT NULL,
+  date TEXT NOT NULL,
+  startTime TEXT NOT NULL,
+  endTime TEXT NOT NULL,
+  isAvailable INTEGER NOT NULL DEFAULT 1,
+  createdAt TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (nurseId) REFERENCES users(id)
+);
