@@ -12,8 +12,7 @@
     "lint": "next lint",
     "cf:build": "opennextjs-cloudflare build",
     "cf:deploy": "opennextjs-cloudflare deploy",
-    "preview": "opennextjs-cloudflare build && opennextjs-cloudflare preview",
-    "deploy": "echo 'Deployment handled by Cloudflare Pages'"
+    "preview": "opennextjs-cloudflare build && opennextjs-cloudflare preview"
   },
   "dependencies": {
     "@opennextjs/cloudflare": "^1.20.2",
