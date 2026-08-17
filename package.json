@@ -13,7 +13,7 @@
     "cf:build": "opennextjs-cloudflare build",
     "cf:deploy": "opennextjs-cloudflare deploy",
     "preview": "opennextjs-cloudflare build && opennextjs-cloudflare preview",
-    "deploy": "opennextjs-cloudflare build && opennextjs-cloudflare deploy"
+    "deploy": "echo 'Deployment handled by Cloudflare Pages'"
   },
   "dependencies": {
     "@opennextjs/cloudflare": "^1.20.2",
