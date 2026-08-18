@@ -32,8 +32,10 @@ export async function POST(request: Request) {
       );
     }
 
-    // Verify password
-    const isValidPassword = await compare(password, user.password);
+    // Verify password (plain text in development, hashed in production)
+    const isValidPassword = typeof (globalThis as any).DB !== "undefined"
+      ? await compare(password, user.password)
+      : password === user.password;
     console.log(`Login: Password valid: ${isValidPassword}`);
     
     if (!isValidPassword) {

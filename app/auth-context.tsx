@@ -15,8 +15,10 @@ type AuthContextType = {
   login: (email: string, password: string) => Promise<void>;
   register: (email: string, password: string, name: string, role?: string) => Promise<void>;
   logout: () => Promise<void>;
-  sendVerification: (email: string) => Promise<string>;
+  sendVerification: (email: string) => Promise<void>;
   verifyEmail: (email: string, code: string) => Promise<void>;
+  forgotPassword: (email: string) => Promise<void>;
+  resetPassword: (email: string, code: string, newPassword: string) => Promise<void>;
   loading: boolean;
 };
 
@@ -90,8 +92,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
 
     const data = await response.json();
-    // Auto-login after registration
-    await login(email, password);
+    // Don't auto-login - user needs to verify email first
   };
 
   const logout = async () => {
@@ -140,8 +141,34 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
+  const forgotPassword = async (email: string) => {
+    const response = await fetch("/api/auth/forgot-password", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email }),
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.error || "Failed to send reset code");
+    }
+  };
+
+  const resetPassword = async (email: string, code: string, newPassword: string) => {
+    const response = await fetch("/api/auth/reset-password", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, code, newPassword }),
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.error || "Failed to reset password");
+    }
+  };
+
   return (
-    <AuthContext.Provider value={{ user, token, login, register, logout, sendVerification, verifyEmail, loading }}>
+    <AuthContext.Provider value={{ user, token, login, register, logout, sendVerification, verifyEmail, forgotPassword, resetPassword, loading }}>
       {children}
     </AuthContext.Provider>
   );
