@@ -38,8 +38,8 @@ export function AuthModal({ isOpen, onClose, defaultMode = "login" }: AuthModalP
         await register(email, password, name, role);
         // Only send verification code if registration succeeded
         try {
-          await sendVerification(email);
-          setMessage(`Verification code sent to ${email}. Please check your inbox.`);
+          const code = await sendVerification(email);
+          setMessage(`Verification code sent to ${email}. Your code is: ${code}`);
           setMode("verify");
         } catch (verifyError) {
           setError(verifyError instanceof Error ? verifyError.message : "Failed to send verification code");
@@ -52,8 +52,8 @@ export function AuthModal({ isOpen, onClose, defaultMode = "login" }: AuthModalP
           setMessage("");
         }, 2000);
       } else if (mode === "forgot") {
-        await forgotPassword(email);
-        setMessage("If an account exists with this email, a password reset code has been sent.");
+        const code = await forgotPassword(email);
+        setMessage(`If an account exists with this email, a password reset code has been sent. Your code is: ${code}`);
         setMode("reset");
       } else if (mode === "reset") {
         await resetPassword(email, verificationCode, newPassword);

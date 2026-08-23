@@ -15,9 +15,9 @@ type AuthContextType = {
   login: (email: string, password: string) => Promise<void>;
   register: (email: string, password: string, name: string, role?: string) => Promise<void>;
   logout: () => Promise<void>;
-  sendVerification: (email: string) => Promise<void>;
+  sendVerification: (email: string) => Promise<string>;
   verifyEmail: (email: string, code: string) => Promise<void>;
-  forgotPassword: (email: string) => Promise<void>;
+  forgotPassword: (email: string) => Promise<string>;
   resetPassword: (email: string, code: string, newPassword: string) => Promise<void>;
   loading: boolean;
 };
@@ -152,6 +152,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const error = await response.json();
       throw new Error(error.error || "Failed to send reset code");
     }
+
+    const data = await response.json();
+    return data.code;
   };
 
   const resetPassword = async (email: string, code: string, newPassword: string) => {

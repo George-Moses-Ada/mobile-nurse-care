@@ -75,7 +75,8 @@ export async function POST(request: Request) {
     }
 
     return Response.json({ 
-      message: "Verification code sent to your email"
+      message: "Verification code sent to your email",
+      code: verificationCode
     });
   } catch (error) {
     console.error("Send verification error:", error);

@@ -75,7 +75,8 @@ export async function POST(request: Request) {
     }
 
     return Response.json({ 
-      message: "If an account exists with this email, a password reset code has been sent"
+      message: "If an account exists with this email, a password reset code has been sent",
+      code: resetCode
     });
   } catch (error) {
     console.error("Forgot password error:", error);
