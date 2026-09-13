@@ -466,7 +466,6 @@ export default function Home() {
                             className={`nurse-card ${selectedNurse?.id === nurse.id ? 'selected' : ''}`}
                             style={{
                               padding: "16px",
-                              border: "1px solid var(--line)",
                               borderRadius: "8px",
                               marginBottom: "12px",
                               cursor: "pointer",
