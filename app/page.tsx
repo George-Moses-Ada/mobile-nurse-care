@@ -4,7 +4,7 @@ import { useAuth } from "./auth-context";
 import { AuthModal } from "./auth-modal";
 
 type Service = { id: number; name: string; description: string; duration: string; price: number; icon: string; modes: string[] };
-type Nurse = { id: number; name: string; rating: number; specialization: string; location: { lat: number; lng: number; address: string }; distance: number };
+type Nurse = { id: number; name: string; rating: number; specialization: string; location: { lat: number; lng: number; address: string }; distance: number; profilePicture: string; verified: boolean };
 const days = [{ day: "MON", date: "17" }, { day: "TUE", date: "18" }, { day: "WED", date: "19" }, { day: "THU", date: "20" }, { day: "FRI", date: "21" }, { day: "SAT", date: "22" }];
 const times = ["9:00 AM", "10:30 AM", "12:00 PM", "2:00 PM", "3:30 PM", "5:00 PM"];
 
@@ -127,14 +127,17 @@ export default function Home() {
   function handleLocationSearch(value: string) {
     setLocationSearch(value);
     if (value.length > 2) {
-      // Simulate location suggestions
-      const suggestions = [
-        `${value}, Lagos, Nigeria`,
-        `${value}, Abuja, Nigeria`,
-        `${value}, Port Harcourt, Nigeria`,
-        `${value}, Ibadan, Nigeria`
-      ];
-      setLocationSuggestions(suggestions);
+      // Use OpenStreetMap Nominatim API for real location suggestions
+      fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(value)}&countrycodes=NG&limit=5`)
+        .then(res => res.json())
+        .then(data => {
+          const suggestions = data.map((item: any) => item.display_name);
+          setLocationSuggestions(suggestions);
+        })
+        .catch(error => {
+          console.error("Failed to fetch location suggestions:", error);
+          setLocationSuggestions([]);
+        });
     } else {
       setLocationSuggestions([]);
     }
@@ -143,25 +146,38 @@ export default function Home() {
   function selectLocation(address: string) {
     setLocationSearch(address);
     setLocationSuggestions([]);
-    // In a real app, you would geocode this address to get lat/lng
-    // For demo, using approximate coordinates for Lagos
-    const lat = 6.5244 + (Math.random() - 0.5) * 0.1;
-    const lng = 3.3792 + (Math.random() - 0.5) * 0.1;
-    setLocation({ lat, lng, address });
-    loadNurses(lat, lng);
+    // Geocode the address to get lat/lng
+    fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}&limit=1`)
+      .then(res => res.json())
+      .then(data => {
+        if (data && data.length > 0) {
+          const lat = parseFloat(data[0].lat);
+          const lng = parseFloat(data[0].lon);
+          setLocation({ lat, lng, address });
+          loadNurses(lat, lng);
+        }
+      })
+      .catch(error => {
+        console.error("Failed to geocode address:", error);
+        // Fallback to approximate coordinates
+        const lat = 6.5244 + (Math.random() - 0.5) * 0.1;
+        const lng = 3.3792 + (Math.random() - 0.5) * 0.1;
+        setLocation({ lat, lng, address });
+        loadNurses(lat, lng);
+      });
   }
 
   function loadNurses(userLat: number, userLng: number) {
     // Mock nurse data - in production this would come from an API
     const mockNurses: Nurse[] = [
-      { id: 1, name: "Sarah Johnson", rating: 4.8, specialization: "General Nursing", location: { lat: userLat + 0.01, lng: userLng + 0.01, address: "Near your location" }, distance: 1.5 },
-      { id: 2, name: "Michael Adeyemi", rating: 4.9, specialization: "Elderly Care", location: { lat: userLat + 0.02, lng: userLng - 0.01, address: "2km away" }, distance: 2.3 },
-      { id: 3, name: "Grace Okafor", rating: 4.7, specialization: "Wound Care", location: { lat: userLat - 0.01, lng: userLng + 0.02, address: "3km away" }, distance: 3.1 },
-      { id: 4, name: "David Nnamdi", rating: 4.6, specialization: "Postnatal Care", location: { lat: userLat + 0.03, lng: userLng + 0.01, address: "5km away" }, distance: 5.2 },
-      { id: 5, name: "Fatima Ibrahim", rating: 4.9, specialization: "General Nursing", location: { lat: userLat - 0.02, lng: userLng - 0.02, address: "8km away" }, distance: 8.4 },
-      { id: 6, name: "Emeka Okonkwo", rating: 4.5, specialization: "Injection Services", location: { lat: userLat + 0.05, lng: userLng - 0.03, address: "12km away" }, distance: 12.1 },
-      { id: 7, name: "Amina Bello", rating: 4.8, specialization: "Elderly Care", location: { lat: userLat - 0.04, lng: userLng + 0.04, address: "15km away" }, distance: 15.3 },
-      { id: 8, name: "Chinedu Okafor", rating: 4.7, specialization: "General Nursing", location: { lat: userLat + 0.06, lng: userLng + 0.02, address: "18km away" }, distance: 18.7 },
+      { id: 1, name: "Sarah Johnson", rating: 4.8, specialization: "General Nursing", location: { lat: userLat + 0.01, lng: userLng + 0.01, address: "Near your location" }, distance: 1.5, profilePicture: "👩🏾‍⚕️", verified: true },
+      { id: 2, name: "Michael Adeyemi", rating: 4.9, specialization: "Elderly Care", location: { lat: userLat + 0.02, lng: userLng - 0.01, address: "2km away" }, distance: 2.3, profilePicture: "👨🏾‍⚕️", verified: true },
+      { id: 3, name: "Grace Okafor", rating: 4.7, specialization: "Wound Care", location: { lat: userLat - 0.01, lng: userLng + 0.02, address: "3km away" }, distance: 3.1, profilePicture: "👩🏽‍⚕️", verified: true },
+      { id: 4, name: "David Nnamdi", rating: 4.6, specialization: "Postnatal Care", location: { lat: userLat + 0.03, lng: userLng + 0.01, address: "5km away" }, distance: 5.2, profilePicture: "👨🏿‍⚕️", verified: false },
+      { id: 5, name: "Fatima Ibrahim", rating: 4.9, specialization: "General Nursing", location: { lat: userLat - 0.02, lng: userLng - 0.02, address: "8km away" }, distance: 8.4, profilePicture: "👩🏻‍⚕️", verified: true },
+      { id: 6, name: "Emeka Okonkwo", rating: 4.5, specialization: "Injection Services", location: { lat: userLat + 0.05, lng: userLng - 0.03, address: "12km away" }, distance: 12.1, profilePicture: "👨🏾‍⚕️", verified: true },
+      { id: 7, name: "Amina Bello", rating: 4.8, specialization: "Elderly Care", location: { lat: userLat - 0.04, lng: userLng + 0.04, address: "15km away" }, distance: 15.3, profilePicture: "👩🏿‍⚕️", verified: true },
+      { id: 8, name: "Chinedu Okafor", rating: 4.7, specialization: "General Nursing", location: { lat: userLat + 0.06, lng: userLng + 0.02, address: "18km away" }, distance: 18.7, profilePicture: "👨🏽‍⚕️", verified: false },
     ];
     setNurses(mockNurses);
   }
@@ -359,16 +375,17 @@ export default function Home() {
                       {locationSuggestions.length > 0 && (
                         <div style={{
                           position: "absolute",
-                          top: "100%",
+                          bottom: "100%",
                           left: 0,
                           right: 0,
-                          background: "var(--surface)",
+                          background: "#ffffff",
                           border: "1px solid var(--line)",
                           borderRadius: "8px",
-                          marginTop: "4px",
+                          marginBottom: "4px",
                           maxHeight: "200px",
                           overflowY: "auto",
-                          zIndex: 10
+                          zIndex: 10,
+                          boxShadow: "0 4px 12px rgba(0,0,0,0.1)"
                         }}>
                           {locationSuggestions.map((suggestion, index) => (
                             <div 
@@ -377,10 +394,11 @@ export default function Home() {
                               style={{
                                 padding: "12px 16px",
                                 cursor: "pointer",
-                                borderBottom: index < locationSuggestions.length - 1 ? "1px solid var(--line)" : "none"
+                                borderBottom: index < locationSuggestions.length - 1 ? "1px solid var(--line)" : "none",
+                                background: "#ffffff"
                               }}
                               onMouseEnter={(e) => e.currentTarget.style.background = "var(--accent-light)"}
-                              onMouseLeave={(e) => e.currentTarget.style.background = "transparent"}
+                              onMouseLeave={(e) => e.currentTarget.style.background = "#ffffff"}
                             >
                               {suggestion}
                             </div>
@@ -455,38 +473,106 @@ export default function Home() {
                         <option value={20}>Within 20km</option>
                       </select>
                     </div>
-                    <div className="nurse-list" style={{ maxHeight: "300px", overflowY: "auto", marginBottom: "16px" }}>
+                    <div className="nurse-list" style={{ maxHeight: "400px", overflowY: "auto", marginBottom: "16px" }}>
                       {getFilteredNurses().length === 0 ? (
                         <p style={{ textAlign: "center", color: "var(--text-muted)", padding: "20px" }}>No nurses match your filters</p>
                       ) : (
-                        getFilteredNurses().map(nurse => (
-                          <div 
-                            key={nurse.id}
-                            onClick={() => setSelectedNurse(nurse)}
-                            className={`nurse-card ${selectedNurse?.id === nurse.id ? 'selected' : ''}`}
-                            style={{
-                              padding: "16px",
-                              borderRadius: "8px",
-                              marginBottom: "12px",
-                              cursor: "pointer",
-                              background: selectedNurse?.id === nurse.id ? "var(--accent-light)" : "transparent",
-                              border: selectedNurse?.id === nurse.id ? "2px solid var(--accent)" : "1px solid var(--line)"
-                            }}
-                          >
-                            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
-                              <div>
-                                <strong style={{ fontSize: "16px" }}>{nurse.name}</strong>
-                                <div style={{ display: "flex", alignItems: "center", gap: "4px", marginTop: "4px" }}>
-                                  <span>⭐ {nurse.rating}</span>
-                                  <span style={{ color: "var(--text-muted)", fontSize: "14px" }}>• {nurse.specialization}</span>
+                        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: "16px" }}>
+                          {getFilteredNurses().map(nurse => (
+                            <div 
+                              key={nurse.id}
+                              onClick={() => setSelectedNurse(nurse)}
+                              className={`nurse-card ${selectedNurse?.id === nurse.id ? 'selected' : ''}`}
+                              style={{
+                                padding: "20px",
+                                borderRadius: "12px",
+                                cursor: "pointer",
+                                background: selectedNurse?.id === nurse.id ? "var(--accent-light)" : "#ffffff",
+                                border: selectedNurse?.id === nurse.id ? "2px solid var(--accent)" : "1px solid var(--line)",
+                                boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
+                                transition: "all 0.2s ease"
+                              }}
+                            >
+                              <div style={{ display: "flex", alignItems: "center", gap: "16px", marginBottom: "12px" }}>
+                                <div style={{ 
+                                  position: "relative",
+                                  width: "60px",
+                                  height: "60px",
+                                  borderRadius: "50%",
+                                  background: "var(--accent-light)",
+                                  display: "flex",
+                                  alignItems: "center",
+                                  justifyContent: "center",
+                                  fontSize: "32px"
+                                }}>
+                                  {nurse.profilePicture}
+                                  {nurse.verified && (
+                                    <div style={{
+                                      position: "absolute",
+                                      bottom: "-2px",
+                                      right: "-2px",
+                                      width: "20px",
+                                      height: "20px",
+                                      background: "#10b981",
+                                      borderRadius: "50%",
+                                      display: "flex",
+                                      alignItems: "center",
+                                      justifyContent: "center",
+                                      fontSize: "12px",
+                                      border: "2px solid #ffffff"
+                                    }}>
+                                      ✓
+                                    </div>
+                                  )}
+                                </div>
+                                <div style={{ flex: 1 }}>
+                                  <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                                    <strong style={{ fontSize: "16px" }}>{nurse.name}</strong>
+                                    {nurse.verified && (
+                                      <span style={{ 
+                                        background: "#10b981", 
+                                        color: "#ffffff", 
+                                        fontSize: "10px", 
+                                        padding: "2px 6px", 
+                                        borderRadius: "4px",
+                                        fontWeight: "600"
+                                      }}>
+                                        Verified
+                                      </span>
+                                    )}
+                                  </div>
+                                  <div style={{ display: "flex", alignItems: "center", gap: "4px", marginTop: "4px" }}>
+                                    <span style={{ fontSize: "14px" }}>⭐ {nurse.rating}</span>
+                                    <span style={{ color: "var(--text-muted)", fontSize: "13px" }}>• {nurse.specialization}</span>
+                                  </div>
                                 </div>
                               </div>
-                              <div style={{ textAlign: "right" }}>
-                                <span style={{ fontSize: "14px", color: "var(--text-muted)" }}>{nurse.distance}km away</span>
+                              <div style={{ 
+                                display: "flex", 
+                                justifyContent: "space-between", 
+                                alignItems: "center",
+                                paddingTop: "12px",
+                                borderTop: "1px solid var(--line)"
+                              }}>
+                                <span style={{ fontSize: "13px", color: "var(--text-muted)" }}>
+                                  📍 {nurse.distance}km away
+                                </span>
+                                <button style={{
+                                  padding: "8px 16px",
+                                  background: selectedNurse?.id === nurse.id ? "var(--accent)" : "transparent",
+                                  color: selectedNurse?.id === nurse.id ? "#ffffff" : "var(--accent)",
+                                  border: selectedNurse?.id === nurse.id ? "none" : "1px solid var(--accent)",
+                                  borderRadius: "6px",
+                                  fontSize: "13px",
+                                  fontWeight: "600",
+                                  cursor: "pointer"
+                                }}>
+                                  {selectedNurse?.id === nurse.id ? "Selected" : "Select"}
+                                </button>
                               </div>
                             </div>
-                          </div>
-                        ))
+                          ))}
+                        </div>
                       )}
                     </div>
                     {selectedNurse && (
