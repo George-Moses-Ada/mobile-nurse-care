@@ -90,6 +90,7 @@ export default function Home() {
   }
 
   function getCurrentLocation() {
+    if (typeof window === 'undefined') return;
     setLoadingLocation(true);
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
