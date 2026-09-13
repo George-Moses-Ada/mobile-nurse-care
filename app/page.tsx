@@ -35,6 +35,7 @@ export default function Home() {
   const [nurses, setNurses] = useState<Nurse[]>([]);
   const [nurseFilter, setNurseFilter] = useState<{ rating: number; specialization: string; maxDistance: number }>({ rating: 0, specialization: "all", maxDistance: 20 });
   const [loadingLocation, setLoadingLocation] = useState(false);
+  const [geocodingLocation, setGeocodingLocation] = useState(false);
   const total = useMemo(() => (selected?.price ?? 0) + (mode === "Home visit" ? 3000 : 0), [selected, mode]);
 
   useEffect(() => {
@@ -146,6 +147,7 @@ export default function Home() {
   function selectLocation(address: string) {
     setLocationSearch(address);
     setLocationSuggestions([]);
+    setGeocodingLocation(true);
     // Geocode the address to get lat/lng
     fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}&limit=1`)
       .then(res => res.json())
@@ -155,7 +157,14 @@ export default function Home() {
           const lng = parseFloat(data[0].lon);
           setLocation({ lat, lng, address });
           loadNurses(lat, lng);
+        } else {
+          // If no results, set location with approximate coordinates
+          const lat = 6.5244 + (Math.random() - 0.5) * 0.1;
+          const lng = 3.3792 + (Math.random() - 0.5) * 0.1;
+          setLocation({ lat, lng, address });
+          loadNurses(lat, lng);
         }
+        setGeocodingLocation(false);
       })
       .catch(error => {
         console.error("Failed to geocode address:", error);
@@ -164,6 +173,7 @@ export default function Home() {
         const lng = 3.3792 + (Math.random() - 0.5) * 0.1;
         setLocation({ lat, lng, address });
         loadNurses(lat, lng);
+        setGeocodingLocation(false);
       });
   }
 
@@ -423,6 +433,18 @@ export default function Home() {
                         <span>{location.address}</span>
                       </div>
                     )}
+                    {geocodingLocation && (
+                      <div style={{
+                        padding: "12px",
+                        background: "var(--surface)",
+                        borderRadius: "8px",
+                        marginBottom: "16px",
+                        textAlign: "center",
+                        color: "var(--text-muted)"
+                      }}>
+                        Getting location coordinates...
+                      </div>
+                    )}
                     <button 
                       className="primary wide" 
                       onClick={() => {
@@ -432,9 +454,9 @@ export default function Home() {
                         }
                         setStep(3);
                       }}
-                      disabled={!location}
+                      disabled={!location || geocodingLocation}
                     >
-                      Continue →
+                      {geocodingLocation ? "Getting location..." : "Continue →"}
                     </button>
                     <button className="text-link" onClick={() => setStep(1)} style={{ marginTop: "12px" }}>← Back to service</button>
                   </div>
