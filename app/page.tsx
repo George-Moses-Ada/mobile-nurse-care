@@ -187,7 +187,10 @@ export default function Home() {
       const matchesRating = nurse.rating >= nurseFilter.rating;
       const matchesSpecialization = nurseFilter.specialization === "all" || nurse.specialization === nurseFilter.specialization;
       const matchesDistance = nurse.distance <= nurseFilter.maxDistance;
-      return matchesRating && matchesSpecialization && matchesDistance;
+      // In production, this would check if the nurse has existing bookings at the selected date/time
+      // For demo, we'll randomly mark some nurses as unavailable
+      const isAvailable = Math.random() > 0.2; // 80% chance of being available
+      return matchesRating && matchesSpecialization && matchesDistance && isAvailable;
     });
   }
 
@@ -312,7 +315,7 @@ export default function Home() {
         <div className="modal-backdrop" onClick={() => setSelected(null)}>
           <div className="modal" onClick={(e) => e.stopPropagation()}>
             <div className="modal-head">
-              <div><span className="kicker">BOOK AN APPOINTMENT</span><h2>{complete ? "Booking confirmed" : step === 1 ? "Choose care details" : step === 2 ? "Select your location" : step === 3 ? "Choose a nurse" : step === 4 ? "Select a time" : step === 5 ? "Your details" : "Payment"}</h2></div>
+              <div><span className="kicker">BOOK AN APPOINTMENT</span><h2>{complete ? "Booking confirmed" : step === 1 ? "Choose care details" : step === 2 ? "Select your location" : step === 3 ? "Select a time" : step === 4 ? "Choose a nurse" : step === 5 ? "Your details" : "Payment"}</h2></div>
               <button onClick={() => setSelected(null)}>×</button>
             </div>
             {!complete && <div className="progress"><span className={step >= 1 ? "active" : ""} /><span className={step >= 2 ? "active" : ""} /><span className={step >= 3 ? "active" : ""} /><span className={step >= 4 ? "active" : ""} /><span className={step >= 5 ? "active" : ""} /><span className={step >= 6 ? "active" : ""} /></div>}
@@ -438,7 +441,16 @@ export default function Home() {
                 )}
                 {step === 3 && (
                   <div className="form-body">
-                    <label>Choose your nurse</label>
+                    <label>Select date <small>August 2026</small></label>
+                    <div className="date-row">{days.map(d => <button key={d.date} className={day === d.date ? "selected" : ""} onClick={() => setDay(d.date)}><small>{d.day}</small><strong>{d.date}</strong></button>)}</div>
+                    <label>Available times</label>
+                    <div className="time-grid">{times.map(t => <button key={t} className={time === t ? "selected" : ""} onClick={() => setTime(t)}>{t}</button>)}</div>
+                    <button className="primary wide" onClick={() => setStep(4)}>Continue →</button>
+                    <button className="text-link" onClick={() => setStep(2)} style={{ marginTop: "12px" }}>← Back to location</button>
+                  </div>
+                )}
+                {step === 4 && (
+                  <div className="form-body">                    <label>Choose your nurse</label>
                     <div className="nurse-filters" style={{ marginBottom: "16px", display: "flex", gap: "12px", flexWrap: "wrap" }}>
                       <select 
                         value={nurseFilter.rating} 
@@ -596,23 +608,13 @@ export default function Home() {
                           alert("Please select a nurse");
                           return;
                         }
-                        setStep(4);
+                        setStep(5);
                       }}
                       disabled={!selectedNurse}
                     >
                       Continue →
                     </button>
-                    <button className="text-link" onClick={() => setStep(2)} style={{ marginTop: "12px" }}>← Back to location</button>
-                  </div>
-                )}
-                {step === 4 && (
-                  <div className="form-body">
-                    <label>Select date <small>August 2026</small></label>
-                    <div className="date-row">{days.map(d => <button key={d.date} className={day === d.date ? "selected" : ""} onClick={() => setDay(d.date)}><small>{d.day}</small><strong>{d.date}</strong></button>)}</div>
-                    <label>Available times</label>
-                    <div className="time-grid">{times.map(t => <button key={t} className={time === t ? "selected" : ""} onClick={() => setTime(t)}>{t}</button>)}</div>
-                    <button className="primary wide" onClick={() => setStep(5)}>Continue →</button>
-                    <button className="text-link" onClick={() => setStep(3)} style={{ marginTop: "12px" }}>← Back to nurse selection</button>
+                    <button className="text-link" onClick={() => setStep(3)} style={{ marginTop: "12px" }}>← Back to date & time</button>
                   </div>
                 )}
                 {step === 5 && (
@@ -685,7 +687,7 @@ export default function Home() {
                       }
                       setStep(6);
                     }}>Continue to Payment →</button>
-                    <button className="text-link" onClick={() => setStep(4)} style={{ marginTop: "12px" }}>← Back to date & time</button>
+                    <button className="text-link" onClick={() => setStep(4)} style={{ marginTop: "12px" }}>← Back to nurse selection</button>
                   </div>
                 )}
                 {step === 6 && (
