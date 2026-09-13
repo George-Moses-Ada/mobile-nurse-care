@@ -4,6 +4,7 @@ import { useAuth } from "./auth-context";
 import { AuthModal } from "./auth-modal";
 
 type Service = { id: number; name: string; description: string; duration: string; price: number; icon: string; modes: string[] };
+type Nurse = { id: number; name: string; rating: number; specialization: string; location: { lat: number; lng: number; address: string }; distance: number };
 const days = [{ day: "MON", date: "17" }, { day: "TUE", date: "18" }, { day: "WED", date: "19" }, { day: "THU", date: "20" }, { day: "FRI", date: "21" }, { day: "SAT", date: "22" }];
 const times = ["9:00 AM", "10:30 AM", "12:00 PM", "2:00 PM", "3:30 PM", "5:00 PM"];
 
@@ -27,6 +28,13 @@ export default function Home() {
   const [patientAddress, setPatientAddress] = useState("");
   const [patientNotes, setPatientNotes] = useState("");
   const [uploadedFiles, setUploadedFiles] = useState<File[]>([]);
+  const [location, setLocation] = useState<{ lat: number; lng: number; address: string } | null>(null);
+  const [locationSearch, setLocationSearch] = useState("");
+  const [locationSuggestions, setLocationSuggestions] = useState<string[]>([]);
+  const [selectedNurse, setSelectedNurse] = useState<Nurse | null>(null);
+  const [nurses, setNurses] = useState<Nurse[]>([]);
+  const [nurseFilter, setNurseFilter] = useState<{ rating: number; specialization: string; maxDistance: number }>({ rating: 0, specialization: "all", maxDistance: 20 });
+  const [loadingLocation, setLoadingLocation] = useState(false);
   const total = useMemo(() => (selected?.price ?? 0) + (mode === "Home visit" ? 3000 : 0), [selected, mode]);
 
   useEffect(() => {
@@ -76,6 +84,94 @@ export default function Home() {
     setMode(service.modes[0]);
     setStep(1);
     setComplete(false);
+    setLocation(null);
+    setSelectedNurse(null);
+    setLocationSearch("");
+  }
+
+  function getCurrentLocation() {
+    setLoadingLocation(true);
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        async (position) => {
+          const { latitude, longitude } = position.coords;
+          // Reverse geocode to get address
+          try {
+            const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`);
+            const data = await response.json();
+            const address = data.display_name || `${latitude.toFixed(4)}, ${longitude.toFixed(4)}`;
+            setLocation({ lat: latitude, lng: longitude, address });
+            setLocationSearch(address);
+            loadNurses(latitude, longitude);
+          } catch (error) {
+            console.error("Failed to get address:", error);
+            setLocation({ lat: latitude, lng: longitude, address: `${latitude.toFixed(4)}, ${longitude.toFixed(4)}` });
+            setLocationSearch(`${latitude.toFixed(4)}, ${longitude.toFixed(4)}`);
+            loadNurses(latitude, longitude);
+          }
+          setLoadingLocation(false);
+        },
+        (error) => {
+          console.error("Geolocation error:", error);
+          setLoadingLocation(false);
+          alert("Unable to get your location. Please search manually.");
+        }
+      );
+    } else {
+      setLoadingLocation(false);
+      alert("Geolocation is not supported by your browser. Please search manually.");
+    }
+  }
+
+  function handleLocationSearch(value: string) {
+    setLocationSearch(value);
+    if (value.length > 2) {
+      // Simulate location suggestions
+      const suggestions = [
+        `${value}, Lagos, Nigeria`,
+        `${value}, Abuja, Nigeria`,
+        `${value}, Port Harcourt, Nigeria`,
+        `${value}, Ibadan, Nigeria`
+      ];
+      setLocationSuggestions(suggestions);
+    } else {
+      setLocationSuggestions([]);
+    }
+  }
+
+  function selectLocation(address: string) {
+    setLocationSearch(address);
+    setLocationSuggestions([]);
+    // In a real app, you would geocode this address to get lat/lng
+    // For demo, using approximate coordinates for Lagos
+    const lat = 6.5244 + (Math.random() - 0.5) * 0.1;
+    const lng = 3.3792 + (Math.random() - 0.5) * 0.1;
+    setLocation({ lat, lng, address });
+    loadNurses(lat, lng);
+  }
+
+  function loadNurses(userLat: number, userLng: number) {
+    // Mock nurse data - in production this would come from an API
+    const mockNurses: Nurse[] = [
+      { id: 1, name: "Sarah Johnson", rating: 4.8, specialization: "General Nursing", location: { lat: userLat + 0.01, lng: userLng + 0.01, address: "Near your location" }, distance: 1.5 },
+      { id: 2, name: "Michael Adeyemi", rating: 4.9, specialization: "Elderly Care", location: { lat: userLat + 0.02, lng: userLng - 0.01, address: "2km away" }, distance: 2.3 },
+      { id: 3, name: "Grace Okafor", rating: 4.7, specialization: "Wound Care", location: { lat: userLat - 0.01, lng: userLng + 0.02, address: "3km away" }, distance: 3.1 },
+      { id: 4, name: "David Nnamdi", rating: 4.6, specialization: "Postnatal Care", location: { lat: userLat + 0.03, lng: userLng + 0.01, address: "5km away" }, distance: 5.2 },
+      { id: 5, name: "Fatima Ibrahim", rating: 4.9, specialization: "General Nursing", location: { lat: userLat - 0.02, lng: userLng - 0.02, address: "8km away" }, distance: 8.4 },
+      { id: 6, name: "Emeka Okonkwo", rating: 4.5, specialization: "Injection Services", location: { lat: userLat + 0.05, lng: userLng - 0.03, address: "12km away" }, distance: 12.1 },
+      { id: 7, name: "Amina Bello", rating: 4.8, specialization: "Elderly Care", location: { lat: userLat - 0.04, lng: userLng + 0.04, address: "15km away" }, distance: 15.3 },
+      { id: 8, name: "Chinedu Okafor", rating: 4.7, specialization: "General Nursing", location: { lat: userLat + 0.06, lng: userLng + 0.02, address: "18km away" }, distance: 18.7 },
+    ];
+    setNurses(mockNurses);
+  }
+
+  function getFilteredNurses() {
+    return nurses.filter(nurse => {
+      const matchesRating = nurse.rating >= nurseFilter.rating;
+      const matchesSpecialization = nurseFilter.specialization === "all" || nurse.specialization === nurseFilter.specialization;
+      const matchesDistance = nurse.distance <= nurseFilter.maxDistance;
+      return matchesRating && matchesSpecialization && matchesDistance;
+    });
   }
 
   return (
@@ -199,10 +295,10 @@ export default function Home() {
         <div className="modal-backdrop" onClick={() => setSelected(null)}>
           <div className="modal" onClick={(e) => e.stopPropagation()}>
             <div className="modal-head">
-              <div><span className="kicker">BOOK AN APPOINTMENT</span><h2>{complete ? "Booking confirmed" : step === 1 ? "Choose care details" : step === 2 ? "Select a time" : step === 3 ? "Your details" : "Payment"}</h2></div>
+              <div><span className="kicker">BOOK AN APPOINTMENT</span><h2>{complete ? "Booking confirmed" : step === 1 ? "Choose care details" : step === 2 ? "Select your location" : step === 3 ? "Choose a nurse" : step === 4 ? "Select a time" : step === 5 ? "Your details" : "Payment"}</h2></div>
               <button onClick={() => setSelected(null)}>×</button>
             </div>
-            {!complete && <div className="progress"><span className={step >= 1 ? "active" : ""} /><span className={step >= 2 ? "active" : ""} /><span className={step >= 3 ? "active" : ""} /><span className={step >= 4 ? "active" : ""} /></div>}
+            {!complete && <div className="progress"><span className={step >= 1 ? "active" : ""} /><span className={step >= 2 ? "active" : ""} /><span className={step >= 3 ? "active" : ""} /><span className={step >= 4 ? "active" : ""} /><span className={step >= 5 ? "active" : ""} /><span className={step >= 6 ? "active" : ""} /></div>}
             {complete ? (
               <div className="success">
                 <div>✓</div>
@@ -224,15 +320,216 @@ export default function Home() {
                 )}
                 {step === 2 && (
                   <div className="form-body">
-                    <label>Select date <small>August 2026</small></label>
-                    <div className="date-row">{days.map(d => <button key={d.date} className={day === d.date ? "selected" : ""} onClick={() => setDay(d.date)}><small>{d.day}</small><strong>{d.date}</strong></button>)}</div>
-                    <label>Available times</label>
-                    <div className="time-grid">{times.map(t => <button key={t} className={time === t ? "selected" : ""} onClick={() => setTime(t)}>{t}</button>)}</div>
-                    <button className="primary wide" onClick={() => setStep(3)}>Continue →</button>
+                    <label>Your location</label>
+                    <button 
+                      className="location-btn" 
+                      onClick={getCurrentLocation}
+                      disabled={loadingLocation}
+                      style={{ 
+                        width: "100%", 
+                        padding: "16px", 
+                        marginBottom: "16px", 
+                        display: "flex", 
+                        alignItems: "center", 
+                        gap: "12px",
+                        border: "1px solid var(--line)",
+                        borderRadius: "8px",
+                        background: loadingLocation ? "var(--surface)" : "transparent",
+                        cursor: loadingLocation ? "not-allowed" : "pointer"
+                      }}
+                    >
+                      <span>📍</span>
+                      <span>{loadingLocation ? "Getting your location..." : "Use my current location"}</span>
+                    </button>
+                    <label>Or search for your address</label>
+                    <div style={{ position: "relative" }}>
+                      <input 
+                        placeholder="Enter your address or location..."
+                        value={locationSearch}
+                        onChange={(e) => handleLocationSearch(e.target.value)}
+                        style={{ 
+                          width: "100%", 
+                          padding: "16px", 
+                          marginBottom: "8px",
+                          border: "1px solid var(--line)",
+                          borderRadius: "8px"
+                        }}
+                      />
+                      {locationSuggestions.length > 0 && (
+                        <div style={{
+                          position: "absolute",
+                          top: "100%",
+                          left: 0,
+                          right: 0,
+                          background: "var(--surface)",
+                          border: "1px solid var(--line)",
+                          borderRadius: "8px",
+                          marginTop: "4px",
+                          maxHeight: "200px",
+                          overflowY: "auto",
+                          zIndex: 10
+                        }}>
+                          {locationSuggestions.map((suggestion, index) => (
+                            <div 
+                              key={index}
+                              onClick={() => selectLocation(suggestion)}
+                              style={{
+                                padding: "12px 16px",
+                                cursor: "pointer",
+                                borderBottom: index < locationSuggestions.length - 1 ? "1px solid var(--line)" : "none"
+                              }}
+                              onMouseEnter={(e) => e.currentTarget.style.background = "var(--accent-light)"}
+                              onMouseLeave={(e) => e.currentTarget.style.background = "transparent"}
+                            >
+                              {suggestion}
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                    {location && (
+                      <div className="selected-location" style={{
+                        padding: "12px",
+                        background: "var(--accent-light)",
+                        borderRadius: "8px",
+                        marginBottom: "16px",
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "8px"
+                      }}>
+                        <span>✓</span>
+                        <span>{location.address}</span>
+                      </div>
+                    )}
+                    <button 
+                      className="primary wide" 
+                      onClick={() => {
+                        if (!location) {
+                          alert("Please select your location");
+                          return;
+                        }
+                        setStep(3);
+                      }}
+                      disabled={!location}
+                    >
+                      Continue →
+                    </button>
                     <button className="text-link" onClick={() => setStep(1)} style={{ marginTop: "12px" }}>← Back to service</button>
                   </div>
                 )}
                 {step === 3 && (
+                  <div className="form-body">
+                    <label>Choose your nurse</label>
+                    <div className="nurse-filters" style={{ marginBottom: "16px", display: "flex", gap: "12px", flexWrap: "wrap" }}>
+                      <select 
+                        value={nurseFilter.rating} 
+                        onChange={(e) => setNurseFilter({ ...nurseFilter, rating: Number(e.target.value) })}
+                        style={{ padding: "8px 12px", borderRadius: "6px", border: "1px solid var(--line)" }}
+                      >
+                        <option value={0}>All ratings</option>
+                        <option value={4.5}>4.5+ stars</option>
+                        <option value={4.7}>4.7+ stars</option>
+                        <option value={4.9}>4.9+ stars</option>
+                      </select>
+                      <select 
+                        value={nurseFilter.specialization} 
+                        onChange={(e) => setNurseFilter({ ...nurseFilter, specialization: e.target.value })}
+                        style={{ padding: "8px 12px", borderRadius: "6px", border: "1px solid var(--line)" }}
+                      >
+                        <option value="all">All specializations</option>
+                        <option value="General Nursing">General Nursing</option>
+                        <option value="Elderly Care">Elderly Care</option>
+                        <option value="Wound Care">Wound Care</option>
+                        <option value="Postnatal Care">Postnatal Care</option>
+                        <option value="Injection Services">Injection Services</option>
+                      </select>
+                      <select 
+                        value={nurseFilter.maxDistance} 
+                        onChange={(e) => setNurseFilter({ ...nurseFilter, maxDistance: Number(e.target.value) })}
+                        style={{ padding: "8px 12px", borderRadius: "6px", border: "1px solid var(--line)" }}
+                      >
+                        <option value={5}>Within 5km</option>
+                        <option value={10}>Within 10km</option>
+                        <option value={15}>Within 15km</option>
+                        <option value={20}>Within 20km</option>
+                      </select>
+                    </div>
+                    <div className="nurse-list" style={{ maxHeight: "300px", overflowY: "auto", marginBottom: "16px" }}>
+                      {getFilteredNurses().length === 0 ? (
+                        <p style={{ textAlign: "center", color: "var(--text-muted)", padding: "20px" }}>No nurses match your filters</p>
+                      ) : (
+                        getFilteredNurses().map(nurse => (
+                          <div 
+                            key={nurse.id}
+                            onClick={() => setSelectedNurse(nurse)}
+                            className={`nurse-card ${selectedNurse?.id === nurse.id ? 'selected' : ''}`}
+                            style={{
+                              padding: "16px",
+                              border: "1px solid var(--line)",
+                              borderRadius: "8px",
+                              marginBottom: "12px",
+                              cursor: "pointer",
+                              background: selectedNurse?.id === nurse.id ? "var(--accent-light)" : "transparent",
+                              border: selectedNurse?.id === nurse.id ? "2px solid var(--accent)" : "1px solid var(--line)"
+                            }}
+                          >
+                            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+                              <div>
+                                <strong style={{ fontSize: "16px" }}>{nurse.name}</strong>
+                                <div style={{ display: "flex", alignItems: "center", gap: "4px", marginTop: "4px" }}>
+                                  <span>⭐ {nurse.rating}</span>
+                                  <span style={{ color: "var(--text-muted)", fontSize: "14px" }}>• {nurse.specialization}</span>
+                                </div>
+                              </div>
+                              <div style={{ textAlign: "right" }}>
+                                <span style={{ fontSize: "14px", color: "var(--text-muted)" }}>{nurse.distance}km away</span>
+                              </div>
+                            </div>
+                          </div>
+                        ))
+                      )}
+                    </div>
+                    {selectedNurse && (
+                      <div className="selected-nurse" style={{
+                        padding: "12px",
+                        background: "var(--accent-light)",
+                        borderRadius: "8px",
+                        marginBottom: "16px",
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "8px"
+                      }}>
+                        <span>✓</span>
+                        <span>Selected: {selectedNurse.name} ({selectedNurse.specialization})</span>
+                      </div>
+                    )}
+                    <button 
+                      className="primary wide" 
+                      onClick={() => {
+                        if (!selectedNurse) {
+                          alert("Please select a nurse");
+                          return;
+                        }
+                        setStep(4);
+                      }}
+                      disabled={!selectedNurse}
+                    >
+                      Continue →
+                    </button>
+                    <button className="text-link" onClick={() => setStep(2)} style={{ marginTop: "12px" }}>← Back to location</button>
+                  </div>
+                )}
+                {step === 4 && (
+                  <div className="form-body">
+                    <label>Select date <small>August 2026</small></label>
+                    <div className="date-row">{days.map(d => <button key={d.date} className={day === d.date ? "selected" : ""} onClick={() => setDay(d.date)}><small>{d.day}</small><strong>{d.date}</strong></button>)}</div>
+                    <label>Available times</label>
+                    <div className="time-grid">{times.map(t => <button key={t} className={time === t ? "selected" : ""} onClick={() => setTime(t)}>{t}</button>)}</div>
+                    <button className="primary wide" onClick={() => setStep(5)}>Continue →</button>
+                    <button className="text-link" onClick={() => setStep(3)} style={{ marginTop: "12px" }}>← Back to nurse selection</button>
+                  </div>
+                )}
+                {step === 5 && (
                   <div className="form-body">
                     <label>Your details</label>
                     <div className="field-grid">
@@ -300,12 +597,12 @@ export default function Home() {
                         alert("Please fill in your name and phone number");
                         return;
                       }
-                      setStep(4);
+                      setStep(6);
                     }}>Continue to Payment →</button>
-                    <button className="text-link" onClick={() => setStep(2)} style={{ marginTop: "12px" }}>← Back to date & time</button>
+                    <button className="text-link" onClick={() => setStep(4)} style={{ marginTop: "12px" }}>← Back to date & time</button>
                   </div>
                 )}
-                {step === 4 && (
+                {step === 6 && (
                   <div className="form-body">
                     <label>Payment</label>
                     <div className="payment-info">
@@ -333,10 +630,10 @@ export default function Home() {
                           return;
                         }
                         
-                        // For demo purposes, use nurseId=1 since we don't have a real nurse user system
                         const appointmentData = {
                           userId: user.id,
-                          nurseId: 1, // Hardcoded for demo - in production this would be the actual nurse's ID
+                          nurseId: selectedNurse?.id || 1,
+                          nurseName: selectedNurse?.name || "Nurse",
                           serviceId: selected.id,
                           serviceName: selected.name,
                           date: `2026-08-${day}`,
@@ -348,7 +645,8 @@ export default function Home() {
                           patientPhone,
                           patientAddress,
                           patientNotes,
-                          uploadedFiles: uploadedFiles.map(f => ({ name: f.name, size: f.size, type: f.type }))
+                          uploadedFiles: uploadedFiles.map(f => ({ name: f.name, size: f.size, type: f.type })),
+                          location: location?.address || ""
                         };
                         
                         console.log("Sending appointment data:", appointmentData);
@@ -374,7 +672,7 @@ export default function Home() {
                         alert("Failed to create appointment: " + error);
                       }
                     }}>Pay ₦{total.toLocaleString()}</button>
-                    <button className="text-link" onClick={() => setStep(3)} style={{ marginTop: "12px" }}>← Back to details</button>
+                    <button className="text-link" onClick={() => setStep(5)} style={{ marginTop: "12px" }}>← Back to details</button>
                   </div>
                 )}
               </>
