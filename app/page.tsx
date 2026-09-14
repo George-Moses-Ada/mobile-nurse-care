@@ -472,12 +472,12 @@ export default function Home() {
                   </div>
                 )}
                 {step === 4 && (
-                  <div className="form-body">                    <label>Choose your nurse</label>
+                  <div className="form-body">    <label>Choose your nurse</label>
                     <div className="nurse-filters" style={{ marginBottom: "16px", display: "flex", gap: "12px", flexWrap: "wrap" }}>
                       <select 
                         value={nurseFilter.rating} 
                         onChange={(e) => setNurseFilter({ ...nurseFilter, rating: Number(e.target.value) })}
-                        style={{ padding: "8px 12px", borderRadius: "6px", border: "1px solid var(--line)" }}
+                        style={{ padding: "8px 12px", borderRadius: "6px", border: "1px solid var(--line)", flex: 1, minWidth: "140px" }}
                       >
                         <option value={0}>All ratings</option>
                         <option value={4.5}>4.5+ stars</option>
@@ -487,7 +487,7 @@ export default function Home() {
                       <select 
                         value={nurseFilter.specialization} 
                         onChange={(e) => setNurseFilter({ ...nurseFilter, specialization: e.target.value })}
-                        style={{ padding: "8px 12px", borderRadius: "6px", border: "1px solid var(--line)" }}
+                        style={{ padding: "8px 12px", borderRadius: "6px", border: "1px solid var(--line)", flex: 1, minWidth: "140px" }}
                       >
                         <option value="all">All specializations</option>
                         <option value="General Nursing">General Nursing</option>
@@ -499,7 +499,7 @@ export default function Home() {
                       <select 
                         value={nurseFilter.maxDistance} 
                         onChange={(e) => setNurseFilter({ ...nurseFilter, maxDistance: Number(e.target.value) })}
-                        style={{ padding: "8px 12px", borderRadius: "6px", border: "1px solid var(--line)" }}
+                        style={{ padding: "8px 12px", borderRadius: "6px", border: "1px solid var(--line)", flex: 1, minWidth: "140px" }}
                       >
                         <option value={5}>Within 5km</option>
                         <option value={10}>Within 10km</option>
@@ -507,18 +507,18 @@ export default function Home() {
                         <option value={20}>Within 20km</option>
                       </select>
                     </div>
-                    <div className="nurse-list" style={{ maxHeight: "400px", overflowY: "auto", marginBottom: "16px" }}>
+                    <div className="nurse-list" style={{ maxHeight: "400px", overflowY: "auto", marginBottom: "16px", paddingRight: "8px" }}>
                       {getFilteredNurses().length === 0 ? (
                         <p style={{ textAlign: "center", color: "var(--text-muted)", padding: "20px" }}>No nurses match your filters</p>
                       ) : (
-                        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: "16px" }}>
+                        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(250px, 1fr))", gap: "16px" }}>
                           {getFilteredNurses().map(nurse => (
                             <div 
                               key={nurse.id}
                               onClick={() => setSelectedNurse(nurse)}
                               className={`nurse-card ${selectedNurse?.id === nurse.id ? 'selected' : ''}`}
                               style={{
-                                padding: "20px",
+                                padding: "16px",
                                 borderRadius: "12px",
                                 cursor: "pointer",
                                 background: selectedNurse?.id === nurse.id ? "var(--accent-light)" : "#ffffff",
@@ -527,17 +527,18 @@ export default function Home() {
                                 transition: "all 0.2s ease"
                               }}
                             >
-                              <div style={{ display: "flex", alignItems: "center", gap: "16px", marginBottom: "12px" }}>
+                              <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "12px" }}>
                                 <div style={{ 
                                   position: "relative",
-                                  width: "60px",
-                                  height: "60px",
+                                  width: "50px",
+                                  height: "50px",
                                   borderRadius: "50%",
                                   background: "var(--accent-light)",
                                   display: "flex",
                                   alignItems: "center",
                                   justifyContent: "center",
-                                  fontSize: "32px"
+                                  fontSize: "28px",
+                                  flexShrink: 0
                                 }}>
                                   {nurse.profilePicture}
                                   {nurse.verified && (
@@ -545,39 +546,40 @@ export default function Home() {
                                       position: "absolute",
                                       bottom: "-2px",
                                       right: "-2px",
-                                      width: "20px",
-                                      height: "20px",
+                                      width: "18px",
+                                      height: "18px",
                                       background: "#10b981",
                                       borderRadius: "50%",
                                       display: "flex",
                                       alignItems: "center",
                                       justifyContent: "center",
-                                      fontSize: "12px",
+                                      fontSize: "11px",
                                       border: "2px solid #ffffff"
                                     }}>
                                       ✓
                                     </div>
                                   )}
                                 </div>
-                                <div style={{ flex: 1 }}>
-                                  <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                                    <strong style={{ fontSize: "16px" }}>{nurse.name}</strong>
+                                <div style={{ flex: 1, minWidth: 0 }}>
+                                  <div style={{ display: "flex", alignItems: "center", gap: "6px", flexWrap: "wrap" }}>
+                                    <strong style={{ fontSize: "15px" }}>{nurse.name}</strong>
                                     {nurse.verified && (
                                       <span style={{ 
                                         background: "#10b981", 
                                         color: "#ffffff", 
-                                        fontSize: "10px", 
-                                        padding: "2px 6px", 
+                                        fontSize: "9px", 
+                                        padding: "2px 5px", 
                                         borderRadius: "4px",
-                                        fontWeight: "600"
+                                        fontWeight: "600",
+                                        flexShrink: 0
                                       }}>
                                         Verified
                                       </span>
                                     )}
                                   </div>
                                   <div style={{ display: "flex", alignItems: "center", gap: "4px", marginTop: "4px" }}>
-                                    <span style={{ fontSize: "14px" }}>⭐ {nurse.rating}</span>
-                                    <span style={{ color: "var(--text-muted)", fontSize: "13px" }}>• {nurse.specialization}</span>
+                                    <span style={{ fontSize: "13px" }}>⭐ {nurse.rating}</span>
+                                    <span style={{ color: "var(--text-muted)", fontSize: "12px", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>• {nurse.specialization}</span>
                                   </div>
                                 </div>
                               </div>
@@ -585,21 +587,22 @@ export default function Home() {
                                 display: "flex", 
                                 justifyContent: "space-between", 
                                 alignItems: "center",
-                                paddingTop: "12px",
+                                paddingTop: "10px",
                                 borderTop: "1px solid var(--line)"
                               }}>
-                                <span style={{ fontSize: "13px", color: "var(--text-muted)" }}>
+                                <span style={{ fontSize: "12px", color: "var(--text-muted)" }}>
                                   📍 {nurse.distance}km away
                                 </span>
                                 <button style={{
-                                  padding: "8px 16px",
+                                  padding: "6px 12px",
                                   background: selectedNurse?.id === nurse.id ? "var(--accent)" : "transparent",
                                   color: selectedNurse?.id === nurse.id ? "#ffffff" : "var(--accent)",
                                   border: selectedNurse?.id === nurse.id ? "none" : "1px solid var(--accent)",
                                   borderRadius: "6px",
-                                  fontSize: "13px",
+                                  fontSize: "12px",
                                   fontWeight: "600",
-                                  cursor: "pointer"
+                                  cursor: "pointer",
+                                  flexShrink: 0
                                 }}>
                                   {selectedNurse?.id === nurse.id ? "Selected" : "Select"}
                                 </button>
