@@ -511,7 +511,7 @@ export default function Home() {
                       {getFilteredNurses().length === 0 ? (
                         <p style={{ textAlign: "center", color: "var(--text-muted)", padding: "20px" }}>No nurses match your filters</p>
                       ) : (
-                        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(250px, 1fr))", gap: "16px" }}>
+                        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "16px" }}>
                           {getFilteredNurses().map(nurse => (
                             <div 
                               key={nurse.id}
