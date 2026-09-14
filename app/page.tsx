@@ -214,26 +214,27 @@ export default function Home() {
             <span>Mobile Nurse<span>Care</span></span>
           </button>
           <button className="menu-btn" onClick={() => setMenu(!menu)}>☰</button>
-          <div className={`nav-links ${menu ? "open" : ""}`}>
-            <a href="#services">Services</a>
-            <a href="#how">How it works</a>
-            <a href="#about">About me</a>
+          <div className={`nav-links ${menu ? "open" : ""}`} style={{ display: menu ? "flex" : "" }}>
+            {menu && <button onClick={() => setMenu(false)} style={{ position: "absolute", top: "20px", right: "20px", background: "none", border: "none", fontSize: "32px", cursor: "pointer", zIndex: "1001" }}>×</button>}
+            <a href="#services" onClick={() => setMenu(false)}>Services</a>
+            <a href="#how" onClick={() => setMenu(false)}>How it works</a>
+            <a href="#about" onClick={() => setMenu(false)}>About me</a>
             {user ? (
               <>
-                <button className="login" onClick={logout}>Sign out</button>
+                <button className="login" onClick={() => { logout(); setMenu(false); }}>Sign out</button>
                 {user.role === "nurse" && (
-                  <button className="login" onClick={() => setView(view === "patient" ? "dashboard" : "patient")}>
+                  <button className="login" onClick={() => { setView(view === "patient" ? "dashboard" : "patient"); setMenu(false); }}>
                     {view === "patient" ? "Nurse dashboard" : "Patient website"}
                   </button>
                 )}
               </>
             ) : (
               <>
-                <button className="login" onClick={() => { setAuthMode("login"); setAuthModal(true); }}>Sign in</button>
-                <button className="primary small" onClick={() => { setAuthMode("register"); setAuthModal(true); }}>Sign up</button>
+                <button className="login" onClick={() => { setAuthMode("login"); setAuthModal(true); setMenu(false); }}>Sign in</button>
+                <button className="primary small" onClick={() => { setAuthMode("register"); setAuthModal(true); setMenu(false); }}>Sign up</button>
               </>
             )}
-            {view === "patient" && user && <button className="primary small" onClick={() => book()}>Book appointment</button>}
+            {view === "patient" && user && <button className="primary small" onClick={() => { book(); setMenu(false); }}>Book appointment</button>}
           </div>
         </nav>
       </header>
