@@ -214,42 +214,28 @@ export default function Home() {
             <span>Mobile Nurse<span>Care</span></span>
           </button>
           <button className="menu-btn" onClick={() => setMenu(!menu)}>☰</button>
-          {menu && <div onClick={() => setMenu(false)} style={{ position: "fixed", top: "78px", left: 0, right: 0, bottom: 0, background: "rgba(0,0,0,0.5)", zIndex: "999" }}></div>}
-          <div className={`nav-links ${menu ? "open" : ""}`} style={{ 
-            display: menu ? "flex" : "",
-            position: menu ? "fixed" : "",
-            top: menu ? "78px" : "",
-            left: menu ? "0" : "",
-            right: menu ? "0" : "",
-            bottom: menu ? "0" : "",
-            background: menu ? "#fff" : "",
-            padding: menu ? "40px 20px" : "",
-            zIndex: menu ? "1000" : "",
-            flexDirection: menu ? "column" : "",
-            gap: menu ? "16px" : "",
-            alignItems: menu ? "center" : "",
-            justifyContent: menu ? "center" : ""
-          }}>
-            {menu && <button onClick={() => setMenu(false)} style={{ position: "absolute", top: "20px", right: "20px", background: "none", border: "none", fontSize: "32px", cursor: "pointer", zIndex: "1001" }}>×</button>}
-            <a href="#services" onClick={() => setMenu(false)} style={{ width: menu ? "100%" : "", maxWidth: menu ? "300px" : "", textAlign: menu ? "center" : "", padding: menu ? "16px" : "", fontSize: menu ? "18px" : "" }}>Services</a>
-            <a href="#how" onClick={() => setMenu(false)} style={{ width: menu ? "100%" : "", maxWidth: menu ? "300px" : "", textAlign: menu ? "center" : "", padding: menu ? "16px" : "", fontSize: menu ? "18px" : "" }}>How it works</a>
-            <a href="#about" onClick={() => setMenu(false)} style={{ width: menu ? "100%" : "", maxWidth: menu ? "300px" : "", textAlign: menu ? "center" : "", padding: menu ? "16px" : "", fontSize: menu ? "18px" : "" }}>About me</a>
+          {menu && <div className={`menu-backdrop ${menu ? "open" : ""}`} onClick={() => setMenu(false)}></div>}
+          <div className={`nav-links ${menu ? "open" : ""}`}>
+            {menu && <button className={`menu-close ${menu ? "open" : ""}`} onClick={() => setMenu(false)}>×</button>}
+            <a href="#services" onClick={() => setMenu(false)}>Services</a>
+            <a href="#how" onClick={() => setMenu(false)}>How it works</a>
+            <a href="#about" onClick={() => setMenu(false)}>About me</a>
             {user ? (
               <>
-                <button className="login" onClick={() => { logout(); setMenu(false); }} style={{ width: menu ? "100%" : "", maxWidth: menu ? "300px" : "", textAlign: menu ? "center" : "", padding: menu ? "16px" : "", fontSize: menu ? "18px" : "" }}>Sign out</button>
+                <button className="login" onClick={() => { logout(); setMenu(false); }}>Sign out</button>
                 {user.role === "nurse" && (
-                  <button className="login" onClick={() => { setView(view === "patient" ? "dashboard" : "patient"); setMenu(false); }} style={{ width: menu ? "100%" : "", maxWidth: menu ? "300px" : "", textAlign: menu ? "center" : "", padding: menu ? "16px" : "", fontSize: menu ? "18px" : "" }}>
+                  <button className="login" onClick={() => { setView(view === "patient" ? "dashboard" : "patient"); setMenu(false); }}>
                     {view === "patient" ? "Nurse dashboard" : "Patient website"}
                   </button>
                 )}
               </>
             ) : (
               <>
-                <button className="login" onClick={() => { setAuthMode("login"); setAuthModal(true); setMenu(false); }} style={{ width: menu ? "100%" : "", maxWidth: menu ? "300px" : "", textAlign: menu ? "center" : "", padding: menu ? "16px" : "", fontSize: menu ? "18px" : "" }}>Sign in</button>
-                <button className="primary small" onClick={() => { setAuthMode("register"); setAuthModal(true); setMenu(false); }} style={{ width: menu ? "100%" : "", maxWidth: menu ? "300px" : "", textAlign: menu ? "center" : "", padding: menu ? "16px" : "", fontSize: menu ? "18px" : "" }}>Sign up</button>
+                <button className="login" onClick={() => { setAuthMode("login"); setAuthModal(true); setMenu(false); }}>Sign in</button>
+                <button className="primary small" onClick={() => { setAuthMode("register"); setAuthModal(true); setMenu(false); }}>Sign up</button>
               </>
             )}
-            {view === "patient" && user && <button className="primary small" onClick={() => { book(); setMenu(false); }} style={{ width: menu ? "100%" : "", maxWidth: menu ? "300px" : "", textAlign: menu ? "center" : "", padding: menu ? "16px" : "", fontSize: menu ? "18px" : "" }}>Book appointment</button>}
+            {view === "patient" && user && <button className="primary small" onClick={() => { book(); setMenu(false); }}>Book appointment</button>}
           </div>
         </nav>
       </header>
