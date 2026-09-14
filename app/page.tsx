@@ -36,6 +36,7 @@ export default function Home() {
   const [nurseFilter, setNurseFilter] = useState<{ rating: number; specialization: string; maxDistance: number }>({ rating: 0, specialization: "all", maxDistance: 20 });
   const [loadingLocation, setLoadingLocation] = useState(false);
   const [geocodingLocation, setGeocodingLocation] = useState(false);
+  const [hoveredNurse, setHoveredNurse] = useState<number | null>(null);
   const total = useMemo(() => (selected?.price ?? 0) + (mode === "Home visit" ? 3000 : 0), [selected, mode]);
 
   useEffect(() => {
@@ -516,14 +517,17 @@ export default function Home() {
                             <div 
                               key={nurse.id}
                               onClick={() => setSelectedNurse(nurse)}
+                              onMouseEnter={() => setHoveredNurse(nurse.id)}
+                              onMouseLeave={() => setHoveredNurse(null)}
                               className={`nurse-card ${selectedNurse?.id === nurse.id ? 'selected' : ''}`}
                               style={{
                                 padding: "16px",
                                 borderRadius: "12px",
                                 cursor: "pointer",
-                                background: selectedNurse?.id === nurse.id ? "var(--accent-light)" : "#ffffff",
-                                border: selectedNurse?.id === nurse.id ? "2px solid var(--accent)" : "1px solid var(--line)",
-                                boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
+                                background: selectedNurse?.id === nurse.id ? "var(--accent-light)" : (hoveredNurse === nurse.id ? "var(--surface)" : "#ffffff"),
+                                border: selectedNurse?.id === nurse.id ? "2px solid var(--accent)" : (hoveredNurse === nurse.id ? "2px solid var(--accent)" : "1px solid var(--line)"),
+                                boxShadow: selectedNurse?.id === nurse.id ? "0 4px 12px rgba(0,0,0,0.15)" : (hoveredNurse === nurse.id ? "0 4px 12px rgba(0,0,0,0.12)" : "0 2px 8px rgba(0,0,0,0.08)"),
+                                transform: selectedNurse?.id === nurse.id ? "translateY(-2px)" : (hoveredNurse === nurse.id ? "translateY(-1px)" : "translateY(0)"),
                                 transition: "all 0.2s ease"
                               }}
                             >
@@ -595,7 +599,7 @@ export default function Home() {
                                 </span>
                                 <button style={{
                                   padding: "6px 12px",
-                                  background: selectedNurse?.id === nurse.id ? "var(--accent)" : "transparent",
+                                  background: selectedNurse?.id === nurse.id ? "var(--accent)" : (hoveredNurse === nurse.id ? "var(--accent-light)" : "transparent"),
                                   color: selectedNurse?.id === nurse.id ? "#ffffff" : "var(--accent)",
                                   border: selectedNurse?.id === nurse.id ? "none" : "1px solid var(--accent)",
                                   borderRadius: "6px",
