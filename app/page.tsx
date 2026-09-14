@@ -512,7 +512,7 @@ export default function Home() {
                       {getFilteredNurses().length === 0 ? (
                         <p style={{ textAlign: "center", color: "var(--text-muted)", padding: "20px" }}>No nurses match your filters</p>
                       ) : (
-                        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "16px" }}>
+                        <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
                           {getFilteredNurses().map(nurse => (
                             <div 
                               key={nurse.id}
@@ -528,7 +528,8 @@ export default function Home() {
                                 border: selectedNurse?.id === nurse.id ? "2px solid var(--accent)" : (hoveredNurse === nurse.id ? "2px solid var(--accent)" : "1px solid var(--line)"),
                                 boxShadow: selectedNurse?.id === nurse.id ? "0 4px 12px rgba(0,0,0,0.15)" : (hoveredNurse === nurse.id ? "0 4px 12px rgba(0,0,0,0.12)" : "0 2px 8px rgba(0,0,0,0.08)"),
                                 transform: selectedNurse?.id === nurse.id ? "translateY(-2px)" : (hoveredNurse === nurse.id ? "translateY(-1px)" : "translateY(0)"),
-                                transition: "all 0.2s ease"
+                                transition: "all 0.2s ease",
+                                width: "100%"
                               }}
                             >
                               <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "12px" }}>
