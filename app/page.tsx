@@ -821,7 +821,7 @@ function Dashboard({ onBack }: { onBack: () => void }) {
   const [withdrawalHistory, setWithdrawalHistory] = useState<any[]>([]);
   const { user } = useAuth();
 
-  // Comprehensive list of Nigerian banks and fintechs with correct Paystack bank codes
+  // Comprehensive list of Nigerian banks with correct Paystack bank codes
   const nigerianBanks = [
     { code: "044", name: "Access Bank" },
     { code: "023", name: "Citibank" },
@@ -851,7 +851,6 @@ function Dashboard({ onBack }: { onBack: () => void }) {
     { code: "512", name: "Credit Direct" },
     { code: "090", name: "JTrust Systems" },
     { code: "100", name: "Sun Trust Bank" },
-    { code: "221", name: "Sterling Bank" },
     { code: "301", name: "Jaiz Bank" },
     { code: "302", name: "Globus Bank" },
     { code: "303", name: "Novno" },

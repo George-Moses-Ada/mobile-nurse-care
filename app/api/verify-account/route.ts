@@ -11,60 +11,44 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // In production, integrate with Paystack's resolve account API
-    // You'll need to add your Paystack secret key to environment variables
     const paystackSecretKey = process.env.PAYSTACK_SECRET_KEY;
     
-    if (paystackSecretKey) {
-      // Real Paystack API call
-      const response = await fetch(`https://api.paystack.co/bank/resolve?account_number=${account_number}&bank_code=${bank_code}`, {
-        headers: {
-          'Authorization': `Bearer ${paystackSecretKey}`,
-          'Content-Type': 'application/json'
-        }
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        if (data.status && data.data) {
-          return NextResponse.json({
-            account_name: data.data.account_name,
-            account_number: data.data.account_number,
-            bank_id: data.data.bank_id
-          });
-        }
-      }
+    if (!paystackSecretKey) {
+      return NextResponse.json(
+        { error: 'Paystack secret key not configured' },
+        { status: 500 }
+      );
     }
 
-    // Fallback for demo purposes (remove in production)
-    // This simulates the API response structure with realistic Nigerian names
-    const mockAccountNames = [
-      "ADEBAYO JOHNSON",
-      "CHIOMA OKAFOR", 
-      "EMEKA NWANKWO",
-      "FATIMA IBRAHIM",
-      "GRACE ADEYEMI",
-      "DAVID OBAFEMI",
-      "KUNLE ADESOYE",
-      "NIKE AKINWANDE",
-      "CHUKWUDI OKORO",
-      "AMINA ALIYU",
-      "OLUWASEUN OLADELE",
-      "CHIDINMA EZE",
-      "ADEWALE OSHODIN",
-      "TOYIN SULAIMAN",
-      "IBRAHIM YUSUF"
-    ];
-
-    // Use account number to consistently return the same name
-    const index = parseInt(account_number.slice(-1)) % mockAccountNames.length;
-    
-    return NextResponse.json({
-      account_name: mockAccountNames[index],
-      account_number: account_number,
-      bank_code: bank_code,
-      demo: true // Flag to indicate this is demo data
+    // Real Paystack API call
+    const response = await fetch(`https://api.paystack.co/bank/resolve?account_number=${account_number}&bank_code=${bank_code}`, {
+      headers: {
+        'Authorization': `Bearer ${paystackSecretKey}`,
+        'Content-Type': 'application/json'
+      }
     });
+
+    if (response.ok) {
+      const data = await response.json();
+      if (data.status && data.data) {
+        return NextResponse.json({
+          account_name: data.data.account_name,
+          account_number: data.data.account_number,
+          bank_id: data.data.bank_id
+        });
+      } else {
+        return NextResponse.json(
+          { error: data.message || 'Account not found' },
+          { status: 404 }
+        );
+      }
+    } else {
+      const errorData = await response.json();
+      return NextResponse.json(
+        { error: errorData.message || 'Failed to verify account' },
+        { status: response.status }
+      );
+    }
 
   } catch (error) {
     console.error('Account verification error:', error);
