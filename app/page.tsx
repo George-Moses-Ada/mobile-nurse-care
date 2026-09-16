@@ -214,9 +214,9 @@ export default function Home() {
             <span>Mobile Nurse<span>Care</span></span>
           </button>
           <button className="menu-btn" onClick={() => setMenu(!menu)}>☰</button>
-          {menu && <div className={`menu-backdrop ${menu ? "open" : ""}`} onClick={() => setMenu(false)}></div>}
+          <div className={`menu-backdrop ${menu ? "open" : ""}`} onClick={() => setMenu(false)}></div>
           <div className={`nav-links ${menu ? "open" : ""}`}>
-            {menu && <button className={`menu-close ${menu ? "open" : ""}`} onClick={() => setMenu(false)}>×</button>}
+            <button className={`menu-close ${menu ? "open" : ""}`} onClick={() => setMenu(false)}>×</button>
             <a href="#services" onClick={() => setMenu(false)}>Services</a>
             <a href="#how" onClick={() => setMenu(false)}>How it works</a>
             <a href="#about" onClick={() => setMenu(false)}>About me</a>
