@@ -37,7 +37,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Fallback for demo purposes (remove in production)
-    // This simulates the API response structure
+    // This simulates the API response structure with realistic Nigerian names
     const mockAccountNames = [
       "ADEBAYO JOHNSON",
       "CHIOMA OKAFOR", 
@@ -48,7 +48,12 @@ export async function POST(request: NextRequest) {
       "KUNLE ADESOYE",
       "NIKE AKINWANDE",
       "CHUKWUDI OKORO",
-      "AMINA ALIYU"
+      "AMINA ALIYU",
+      "OLUWASEUN OLADELE",
+      "CHIDINMA EZE",
+      "ADEWALE OSHODIN",
+      "TOYIN SULAIMAN",
+      "IBRAHIM YUSUF"
     ];
 
     // Use account number to consistently return the same name
