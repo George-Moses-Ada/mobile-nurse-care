@@ -956,28 +956,41 @@ function Dashboard({ onBack }: { onBack: () => void }) {
                 )}
                 {quickAction === "wallet" && (
                   <>
-                    <label>Wallet Balance</label>
-                    <div className="wallet-balance" style={{
-                      background: "var(--mint)",
-                      padding: "24px",
-                      borderRadius: "12px",
-                      textAlign: "center",
-                      marginBottom: "24px"
+                    <div className="wallet-card" style={{
+                      background: "linear-gradient(135deg, var(--green) 0%, #075f55 100%)",
+                      padding: "32px",
+                      borderRadius: "16px",
+                      marginBottom: "24px",
+                      color: "#fff",
+                      position: "relative",
+                      overflow: "hidden"
                     }}>
-                      <small>Available balance</small>
-                      <strong style={{ fontSize: "32px", color: "var(--green)" }}>₦{walletBalance.toLocaleString()}</strong>
-                      <small>Withdrawable funds</small>
+                      <div style={{ position: "absolute", top: "-50%", right: "-50%", width: "200px", height: "200px", background: "rgba(255,255,255,0.1)", borderRadius: "50%" }}></div>
+                      <div style={{ position: "absolute", bottom: "-30%", left: "-10%", width: "150px", height: "150px", background: "rgba(255,255,255,0.05)", borderRadius: "50%" }}></div>
+                      <div style={{ position: "relative", zIndex: 1 }}>
+                        <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "16px" }}>
+                          <span style={{ fontSize: "24px" }}>💳</span>
+                          <span style={{ fontSize: "14px", opacity: 0.9 }}>Wallet Balance</span>
+                        </div>
+                        <strong style={{ fontSize: "42px", fontWeight: "700", marginBottom: "8px", display: "block" }}>₦{walletBalance.toLocaleString()}</strong>
+                        <span style={{ fontSize: "14px", opacity: 0.9 }}>Available for withdrawal</span>
+                      </div>
                     </div>
+                    
                     <label>Withdraw funds</label>
                     <div className="field-grid">
-                      <input 
-                        type="number" 
-                        placeholder="Amount (₦)" 
-                        value={withdrawalAmount}
-                        onChange={(e) => setWithdrawalAmount(e.target.value)}
-                        min={1000}
-                        max={walletBalance}
-                      />
+                      <div style={{ position: "relative" }}>
+                        <span style={{ position: "absolute", left: "16px", top: "50%", transform: "translateY(-50%)", color: "var(--muted)", fontSize: "18px" }}>₦</span>
+                        <input 
+                          type="number" 
+                          placeholder="Amount" 
+                          value={withdrawalAmount}
+                          onChange={(e) => setWithdrawalAmount(e.target.value)}
+                          min={1000}
+                          max={walletBalance}
+                          style={{ paddingLeft: "40px" }}
+                        />
+                      </div>
                       <select 
                         value={withdrawalBank}
                         onChange={(e) => setWithdrawalBank(e.target.value)}
@@ -999,6 +1012,12 @@ function Dashboard({ onBack }: { onBack: () => void }) {
                     />
                     <button 
                       className="primary wide" 
+                      style={{ 
+                        background: "linear-gradient(135deg, var(--green) 0%, #075f55 100%)",
+                        padding: "16px",
+                        fontSize: "16px",
+                        fontWeight: "700"
+                      }}
                       onClick={() => {
                         const amount = parseFloat(withdrawalAmount);
                         if (!amount || amount < 1000) {
@@ -1033,26 +1052,66 @@ function Dashboard({ onBack }: { onBack: () => void }) {
                     >
                       Withdraw ₦{withdrawalAmount || "0"}
                     </button>
-                    <label style={{ marginTop: "24px" }}>Withdrawal history</label>
-                    <div className="summary">
+                    
+                    <label style={{ marginTop: "32px", marginBottom: "16px" }}>Withdrawal history</label>
+                    <div className="withdrawal-history" style={{
+                      maxHeight: "300px",
+                      overflowY: "auto",
+                      paddingRight: "8px"
+                    }}>
                       {withdrawalHistory.length === 0 ? (
-                        <p style={{ textAlign: "center", color: "var(--text-muted)", padding: "20px" }}>No withdrawals yet</p>
+                        <div style={{ 
+                          textAlign: "center", 
+                          color: "var(--text-muted)", 
+                          padding: "40px 20px",
+                          background: "var(--mint)",
+                          borderRadius: "12px"
+                        }}>
+                          <span style={{ fontSize: "48px", marginBottom: "16px", display: "block" }}>💳</span>
+                          <p>No withdrawals yet</p>
+                        </div>
                       ) : (
                         withdrawalHistory.map((withdrawal) => (
-                          <div key={withdrawal.id}>
-                            <small>{withdrawal.date}</small>
-                            <strong>₦{withdrawal.amount.toLocaleString()}</strong>
-                            <span style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                              {withdrawal.bank}
-                              <span className={`status ${withdrawal.status === "completed" ? "confirmed" : "pending"}`}>
-                                {withdrawal.status}
-                              </span>
+                          <div key={withdrawal.id} style={{
+                            background: "#fff",
+                            border: "1px solid var(--line)",
+                            borderRadius: "12px",
+                            padding: "16px",
+                            marginBottom: "12px",
+                            display: "flex",
+                            alignItems: "center",
+                            gap: "16px",
+                            transition: "all 0.2s ease"
+                          }}>
+                            <div style={{
+                              width: "48px",
+                              height: "48px",
+                              borderRadius: "12px",
+                              background: "var(--mint)",
+                              display: "flex",
+                              alignItems: "center",
+                              justifyContent: "center",
+                              fontSize: "24px"
+                            }}>
+                              💰
+                            </div>
+                            <div style={{ flex: 1 }}>
+                              <strong style={{ fontSize: "16px", marginBottom: "4px", display: "block" }}>₦{withdrawal.amount.toLocaleString()}</strong>
+                              <small style={{ color: "var(--muted)" }}>{withdrawal.date} · {withdrawal.bank}</small>
+                            </div>
+                            <span className={`status ${withdrawal.status === "completed" ? "confirmed" : "pending"}`} style={{
+                              padding: "6px 12px",
+                              borderRadius: "20px",
+                              fontSize: "12px",
+                              fontWeight: "600"
+                            }}>
+                              {withdrawal.status}
                             </span>
                           </div>
                         ))
                       )}
                     </div>
-                    <button className="primary wide" onClick={() => setQuickAction(null)}>Close</button>
+                    <button className="primary wide" onClick={() => setQuickAction(null)} style={{ marginTop: "24px" }}>Close</button>
                   </>
                 )}
                 {quickAction === "payments" && (
