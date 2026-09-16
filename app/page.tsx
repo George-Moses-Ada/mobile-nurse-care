@@ -816,6 +816,8 @@ function Dashboard({ onBack }: { onBack: () => void }) {
   const [withdrawalAmount, setWithdrawalAmount] = useState("");
   const [withdrawalBank, setWithdrawalBank] = useState("");
   const [withdrawalAccount, setWithdrawalAccount] = useState("");
+  const [accountHolderName, setAccountHolderName] = useState("");
+  const [verifyingAccount, setVerifyingAccount] = useState(false);
   const [withdrawalHistory, setWithdrawalHistory] = useState<any[]>([]);
   const { user } = useAuth();
 
@@ -845,10 +847,46 @@ function Dashboard({ onBack }: { onBack: () => void }) {
   useEffect(() => {
     setWalletBalance(totalEarnings * 0.7); // 70% of earnings go to wallet
     setWithdrawalHistory([
-      { id: 1, amount: 15000, date: "2026-09-10", status: "completed", bank: "GTBank" },
-      { id: 2, amount: 25000, date: "2026-09-05", status: "completed", bank: "Access Bank" },
+      { id: 1, amount: 15000, date: "2026-09-10", status: "completed", bank: "GTBank", accountHolder: "ADEBAYO JOHNSON" },
+      { id: 2, amount: 25000, date: "2026-09-05", status: "completed", bank: "Access Bank", accountHolder: "CHIOMA OKAFOR" },
     ]);
   }, [totalEarnings]);
+
+  // Mock account verification - in production this would call a bank verification API
+  const verifyAccountNumber = async (accountNumber: string, bank: string) => {
+    if (accountNumber.length < 10) {
+      setAccountHolderName("");
+      return;
+    }
+    
+    setVerifyingAccount(true);
+    
+    // Simulate API call delay
+    setTimeout(() => {
+      // Mock account names based on account number (demo purposes)
+      const mockNames = [
+        "ADEBAYO JOHNSON",
+        "CHIOMA OKAFOR", 
+        "EMEKA NWANKWO",
+        "FATIMA IBRAHIM",
+        "GRACE ADEYEMI",
+        "DAVID OBAFEMI"
+      ];
+      
+      // Use account number to consistently return the same name
+      const index = parseInt(accountNumber.slice(-1)) % mockNames.length;
+      setAccountHolderName(mockNames[index]);
+      setVerifyingAccount(false);
+    }, 1000);
+  };
+
+  useEffect(() => {
+    if (withdrawalAccount.length >= 10 && withdrawalBank) {
+      verifyAccountNumber(withdrawalAccount, withdrawalBank);
+    } else {
+      setAccountHolderName("");
+    }
+  }, [withdrawalAccount, withdrawalBank]);
 
   return (
     <section className="dashboard shell">
@@ -1004,12 +1042,43 @@ function Dashboard({ onBack }: { onBack: () => void }) {
                         <option value="Kuda Bank">Kuda Bank</option>
                       </select>
                     </div>
-                    <input 
-                      placeholder="Account number" 
-                      value={withdrawalAccount}
-                      onChange={(e) => setWithdrawalAccount(e.target.value)}
-                      style={{ marginBottom: "24px" }}
-                    />
+                    <div style={{ position: "relative" }}>
+                      <input 
+                        placeholder="Account number" 
+                        value={withdrawalAccount}
+                        onChange={(e) => setWithdrawalAccount(e.target.value)}
+                        maxLength={10}
+                        style={{ marginBottom: accountHolderName ? "8px" : "24px" }}
+                      />
+                      {verifyingAccount && (
+                        <div style={{ 
+                          position: "absolute", 
+                          right: "16px", 
+                          top: "50%", 
+                          transform: "translateY(-50%)",
+                          color: "var(--muted)",
+                          fontSize: "12px"
+                        }}>
+                          Verifying...
+                        </div>
+                      )}
+                    </div>
+                    {accountHolderName && (
+                      <div style={{
+                        background: "var(--mint)",
+                        padding: "12px 16px",
+                        borderRadius: "8px",
+                        marginBottom: "24px",
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "8px"
+                      }}>
+                        <span style={{ color: "var(--green)", fontSize: "16px" }}>✓</span>
+                        <span style={{ fontSize: "14px", color: "var(--ink)" }}>
+                          <strong>Account Holder:</strong> {accountHolderName}
+                        </span>
+                      </div>
+                    )}
                     <button 
                       className="primary wide" 
                       style={{ 
@@ -1032,6 +1101,10 @@ function Dashboard({ onBack }: { onBack: () => void }) {
                           alert("Please select bank and enter account number");
                           return;
                         }
+                        if (!accountHolderName) {
+                          alert("Please wait for account verification to complete");
+                          return;
+                        }
                         // Process withdrawal
                         setWalletBalance(walletBalance - amount);
                         setWithdrawalHistory([
@@ -1041,13 +1114,15 @@ function Dashboard({ onBack }: { onBack: () => void }) {
                             amount,
                             date: new Date().toISOString().split('T')[0],
                             status: "pending",
-                            bank: withdrawalBank
+                            bank: withdrawalBank,
+                            accountHolder: accountHolderName
                           }
                         ]);
                         setWithdrawalAmount("");
                         setWithdrawalBank("");
                         setWithdrawalAccount("");
-                        alert(`Withdrawal request of ₦${amount.toLocaleString()} submitted successfully!`);
+                        setAccountHolderName("");
+                        alert(`Withdrawal request of ₦${amount.toLocaleString()} submitted successfully to ${accountHolderName}!`);
                       }}
                     >
                       Withdraw ₦{withdrawalAmount || "0"}
@@ -1098,6 +1173,11 @@ function Dashboard({ onBack }: { onBack: () => void }) {
                             <div style={{ flex: 1 }}>
                               <strong style={{ fontSize: "16px", marginBottom: "4px", display: "block" }}>₦{withdrawal.amount.toLocaleString()}</strong>
                               <small style={{ color: "var(--muted)" }}>{withdrawal.date} · {withdrawal.bank}</small>
+                              {withdrawal.accountHolder && (
+                                <small style={{ color: "var(--green)", display: "block", marginTop: "2px" }}>
+                                  ✓ {withdrawal.accountHolder}
+                                </small>
+                              )}
                             </div>
                             <span className={`status ${withdrawal.status === "completed" ? "confirmed" : "pending"}`} style={{
                               padding: "6px 12px",
