@@ -807,11 +807,16 @@ export default function Home() {
 function Dashboard({ onBack }: { onBack: () => void }) {
   const [appointments, setAppointments] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [quickAction, setQuickAction] = useState<"add" | "availability" | "payments" | "settings" | "profile" | null>(null);
+  const [quickAction, setQuickAction] = useState<"add" | "availability" | "payments" | "settings" | "profile" | "wallet" | null>(null);
   const [selectedAppointment, setSelectedAppointment] = useState<any | null>(null);
   const [showCalendar, setShowCalendar] = useState(false);
   const [viewingFile, setViewingFile] = useState<any | null>(null);
   const [consultationText, setConsultationText] = useState("");
+  const [walletBalance, setWalletBalance] = useState(0);
+  const [withdrawalAmount, setWithdrawalAmount] = useState("");
+  const [withdrawalBank, setWithdrawalBank] = useState("");
+  const [withdrawalAccount, setWithdrawalAccount] = useState("");
+  const [withdrawalHistory, setWithdrawalHistory] = useState<any[]>([]);
   const { user } = useAuth();
 
   useEffect(() => {
@@ -835,6 +840,15 @@ function Dashboard({ onBack }: { onBack: () => void }) {
   const completedCount = appointments.filter((a: any) => a.status === "completed").length;
   const totalEarnings = appointments.filter((a: any) => a.paymentStatus === "paid").reduce((sum: number, a: any) => sum + a.totalAmount, 0);
   const nextAppointment = appointments.find((a: any) => a.status === "confirmed");
+  
+  // Mock wallet balance - in production this would come from an API
+  useEffect(() => {
+    setWalletBalance(totalEarnings * 0.7); // 70% of earnings go to wallet
+    setWithdrawalHistory([
+      { id: 1, amount: 15000, date: "2026-09-10", status: "completed", bank: "GTBank" },
+      { id: 2, amount: 25000, date: "2026-09-05", status: "completed", bank: "Access Bank" },
+    ]);
+  }, [totalEarnings]);
 
   return (
     <section className="dashboard shell">
@@ -849,7 +863,7 @@ function Dashboard({ onBack }: { onBack: () => void }) {
       <div className="dash-stats">
         <div><i>▦</i><span><small>Today's bookings</small><strong>{appointments.length}</strong></span></div>
         <div><i>✓</i><span><small>Completed this week</small><strong>{completedCount}</strong></span></div>
-        <div><i>₦</i><span><small>This month's earnings</small><strong>₦{totalEarnings.toLocaleString()}</strong></span></div>
+        <div><i>₦</i><span><small>Wallet balance</small><strong>₦{walletBalance.toLocaleString()}</strong></span></div>
         <div><i>◷</i><span><small>Next appointment</small><strong>{nextAppointment?.time || "--:--"}</strong></span></div>
       </div>
       <div className="dash-grid">
@@ -883,6 +897,7 @@ function Dashboard({ onBack }: { onBack: () => void }) {
           <h2>Quick actions</h2>
           <button onClick={() => setQuickAction("add")}><i>＋</i><span><b>Add appointment</b><small>Create a booking manually</small></span></button>
           <button onClick={() => setQuickAction("availability")}><i>▦</i><span><b>Manage availability</b><small>Set your working hours</small></span></button>
+          <button onClick={() => setQuickAction("wallet")}><i>💳</i><span><b>Wallet</b><small>Withdraw funds</small></span></button>
           <button onClick={() => setQuickAction("payments")}><i>₦</i><span><b>Payment history</b><small>View transactions</small></span></button>
           <button onClick={() => setQuickAction("profile")}><i>👤</i><span><b>Profile</b><small>Manage your profile</small></span></button>
           <button onClick={() => setQuickAction("settings")}><i>⚙</i><span><b>Settings</b><small>Account preferences</small></span></button>
@@ -937,6 +952,107 @@ function Dashboard({ onBack }: { onBack: () => void }) {
                       <label className="day-checkbox"><input type="checkbox" /><span>Sunday</span></label>
                     </div>
                     <button className="primary wide" onClick={() => { setQuickAction(null); alert("Availability updated!"); }}>Save availability</button>
+                  </>
+                )}
+                {quickAction === "wallet" && (
+                  <>
+                    <label>Wallet Balance</label>
+                    <div className="wallet-balance" style={{
+                      background: "var(--mint)",
+                      padding: "24px",
+                      borderRadius: "12px",
+                      textAlign: "center",
+                      marginBottom: "24px"
+                    }}>
+                      <small>Available balance</small>
+                      <strong style={{ fontSize: "32px", color: "var(--green)" }}>₦{walletBalance.toLocaleString()}</strong>
+                      <small>Withdrawable funds</small>
+                    </div>
+                    <label>Withdraw funds</label>
+                    <div className="field-grid">
+                      <input 
+                        type="number" 
+                        placeholder="Amount (₦)" 
+                        value={withdrawalAmount}
+                        onChange={(e) => setWithdrawalAmount(e.target.value)}
+                        min={1000}
+                        max={walletBalance}
+                      />
+                      <select 
+                        value={withdrawalBank}
+                        onChange={(e) => setWithdrawalBank(e.target.value)}
+                      >
+                        <option value="">Select bank</option>
+                        <option value="GTBank">GTBank</option>
+                        <option value="Access Bank">Access Bank</option>
+                        <option value="First Bank">First Bank</option>
+                        <option value="UBA">UBA</option>
+                        <option value="Zenith Bank">Zenith Bank</option>
+                        <option value="Kuda Bank">Kuda Bank</option>
+                      </select>
+                    </div>
+                    <input 
+                      placeholder="Account number" 
+                      value={withdrawalAccount}
+                      onChange={(e) => setWithdrawalAccount(e.target.value)}
+                      style={{ marginBottom: "24px" }}
+                    />
+                    <button 
+                      className="primary wide" 
+                      onClick={() => {
+                        const amount = parseFloat(withdrawalAmount);
+                        if (!amount || amount < 1000) {
+                          alert("Minimum withdrawal is ₦1,000");
+                          return;
+                        }
+                        if (amount > walletBalance) {
+                          alert("Insufficient balance");
+                          return;
+                        }
+                        if (!withdrawalBank || !withdrawalAccount) {
+                          alert("Please select bank and enter account number");
+                          return;
+                        }
+                        // Process withdrawal
+                        setWalletBalance(walletBalance - amount);
+                        setWithdrawalHistory([
+                          ...withdrawalHistory,
+                          {
+                            id: withdrawalHistory.length + 1,
+                            amount,
+                            date: new Date().toISOString().split('T')[0],
+                            status: "pending",
+                            bank: withdrawalBank
+                          }
+                        ]);
+                        setWithdrawalAmount("");
+                        setWithdrawalBank("");
+                        setWithdrawalAccount("");
+                        alert(`Withdrawal request of ₦${amount.toLocaleString()} submitted successfully!`);
+                      }}
+                    >
+                      Withdraw ₦{withdrawalAmount || "0"}
+                    </button>
+                    <label style={{ marginTop: "24px" }}>Withdrawal history</label>
+                    <div className="summary">
+                      {withdrawalHistory.length === 0 ? (
+                        <p style={{ textAlign: "center", color: "var(--text-muted)", padding: "20px" }}>No withdrawals yet</p>
+                      ) : (
+                        withdrawalHistory.map((withdrawal) => (
+                          <div key={withdrawal.id}>
+                            <small>{withdrawal.date}</small>
+                            <strong>₦{withdrawal.amount.toLocaleString()}</strong>
+                            <span style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                              {withdrawal.bank}
+                              <span className={`status ${withdrawal.status === "completed" ? "confirmed" : "pending"}`}>
+                                {withdrawal.status}
+                              </span>
+                            </span>
+                          </div>
+                        ))
+                      )}
+                    </div>
+                    <button className="primary wide" onClick={() => setQuickAction(null)}>Close</button>
                   </>
                 )}
                 {quickAction === "payments" && (
