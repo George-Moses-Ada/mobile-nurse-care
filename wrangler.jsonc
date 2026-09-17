@@ -16,6 +16,7 @@
     }
   ],
   "vars": {
-    "NODE_ENV": "production"
+    "NODE_ENV": "production",
+    "PAYSTACK_SECRET_KEY": "sk_test_318bfd454f160dc134c7ab28d9fac403110fd4b1"
   }
 }
