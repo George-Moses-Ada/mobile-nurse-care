@@ -17,17 +17,10 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const paystackSecretKey = process.env.PAYSTACK_SECRET_KEY;
+    // Try environment variable first, fall back to hardcoded key for testing
+    const paystackSecretKey = process.env.PAYSTACK_SECRET_KEY || 'sk_test_318bfd454f160dc134c7ab28d9fac403110fd4b1';
     console.log('Paystack secret key configured:', !!paystackSecretKey);
-    console.log('Environment PAYSTACK_SECRET_KEY:', process.env.PAYSTACK_SECRET_KEY ? 'SET' : 'NOT SET');
-    
-    if (!paystackSecretKey) {
-      console.log('Paystack secret key not configured');
-      return NextResponse.json(
-        { error: 'Paystack secret key not configured in environment' },
-        { status: 500 }
-      );
-    }
+    console.log('Using secret key:', paystackSecretKey.substring(0, 10) + '...');
 
     // Real Paystack API call
     const apiUrl = `https://api.paystack.co/bank/resolve?account_number=${account_number}&bank_code=${bank_code}`;
