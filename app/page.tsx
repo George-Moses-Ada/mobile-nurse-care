@@ -901,13 +901,15 @@ function Dashboard({ onBack }: { onBack: () => void }) {
       // Get bank code from selected bank name
       const selectedBank = nigerianBanks.find(b => b.name === bank);
       if (!selectedBank) {
+        console.error("Bank not found:", bank);
         setAccountHolderName("");
         setVerifyingAccount(false);
         return;
       }
 
+      console.log("Verifying account:", { accountNumber, bank: selectedBank.name, bankCode: selectedBank.code });
+
       // Call your backend API for account verification
-      // This should integrate with Paystack's resolve account API or similar
       const response = await fetch('/api/verify-account', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -917,36 +919,22 @@ function Dashboard({ onBack }: { onBack: () => void }) {
         })
       });
 
+      console.log("API response status:", response.status);
+
       if (response.ok) {
         const data = await response.json();
+        console.log("API response data:", data);
         setAccountHolderName(data.account_name || "");
       } else {
-        // Fallback to mock data if API fails (for demo purposes)
-        console.error("Account verification failed, using fallback");
-        const mockNames = [
-          "ADEBAYO JOHNSON",
-          "CHIOMA OKAFOR", 
-          "EMEKA NWANKWO",
-          "FATIMA IBRAHIM",
-          "GRACE ADEYEMI",
-          "DAVID OBAFEMI"
-        ];
-        const index = parseInt(accountNumber.slice(-1)) % mockNames.length;
-        setAccountHolderName(mockNames[index]);
+        const errorData = await response.json();
+        console.error("API error response:", errorData);
+        setAccountHolderName("");
+        alert(errorData.error || "Failed to verify account");
       }
     } catch (error) {
       console.error("Account verification error:", error);
-      // Fallback to mock data if API fails
-      const mockNames = [
-        "ADEBAYO JOHNSON",
-        "CHIOMA OKAFOR", 
-        "EMEKA NWANKWO",
-        "FATIMA IBRAHIM",
-        "GRACE ADEYEMI",
-        "DAVID OBAFEMI"
-      ];
-      const index = parseInt(accountNumber.slice(-1)) % mockNames.length;
-      setAccountHolderName(mockNames[index]);
+      setAccountHolderName("");
+      alert("Failed to verify account. Please try again.");
     } finally {
       setVerifyingAccount(false);
     }
