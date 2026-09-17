@@ -2,11 +2,15 @@ import { NextRequest, NextResponse } from 'next/server';
 
 export async function POST(request: NextRequest) {
   try {
-    const { account_number, bank_code } = await request.json();
+    const body = await request.json();
+    console.log('Raw request body:', body);
+    
+    const { account_number, bank_code } = body;
 
     console.log('Account verification request:', { account_number, bank_code });
 
     if (!account_number || !bank_code) {
+      console.log('Validation failed: missing fields');
       return NextResponse.json(
         { error: 'Account number and bank code are required' },
         { status: 400 }
@@ -15,10 +19,12 @@ export async function POST(request: NextRequest) {
 
     const paystackSecretKey = process.env.PAYSTACK_SECRET_KEY;
     console.log('Paystack secret key configured:', !!paystackSecretKey);
+    console.log('Environment PAYSTACK_SECRET_KEY:', process.env.PAYSTACK_SECRET_KEY ? 'SET' : 'NOT SET');
     
     if (!paystackSecretKey) {
+      console.log('Paystack secret key not configured');
       return NextResponse.json(
-        { error: 'Paystack secret key not configured' },
+        { error: 'Paystack secret key not configured in environment' },
         { status: 500 }
       );
     }
