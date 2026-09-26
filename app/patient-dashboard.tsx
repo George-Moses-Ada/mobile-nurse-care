@@ -365,7 +365,7 @@ export default function PatientDashboard({ onBack }: { onBack: () => void }) {
                             borderRadius: "8px",
                             fontSize: "14px",
                             fontWeight: "600",
-                            cursor: pointer"
+                            cursor: "pointer"
                           }}
                         >
                           Cancel
@@ -381,7 +381,7 @@ export default function PatientDashboard({ onBack }: { onBack: () => void }) {
                             borderRadius: "8px",
                             fontSize: "14px",
                             fontWeight: "600",
-                            cursor: pointer"
+                            cursor: "pointer"
                           }}
                         >
                           Reschedule
@@ -400,7 +400,7 @@ export default function PatientDashboard({ onBack }: { onBack: () => void }) {
                           borderRadius: "8px",
                           fontSize: "14px",
                           "fontWeight": "600",
-                          cursor: pointer
+                          cursor: "pointer"
                         }}
                       >
                         Reschedule
@@ -417,7 +417,7 @@ export default function PatientDashboard({ onBack }: { onBack: () => void }) {
                         borderRadius: "8px",
                         fontSize: "14px",
                         fontWeight: "600",
-                        cursor: pointer"
+                        cursor: "pointer"
                       }}
                     >
                       View Details
