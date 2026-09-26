@@ -237,7 +237,6 @@ export default function Home() {
                 <button className="primary small" onClick={() => { setAuthMode("register"); setAuthModal(true); setMenu(false); }}>Sign up</button>
               </>
             )}
-            {view === "patient" && user && user.role === "patient" && <button className="primary small" onClick={() => { book(); setMenu(false); }}>Book appointment</button>}
           </div>
         </nav>
       </header>
