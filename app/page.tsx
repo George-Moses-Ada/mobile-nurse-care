@@ -2,6 +2,7 @@
 import { useMemo, useState, useEffect } from "react";
 import { useAuth } from "./auth-context";
 import { AuthModal } from "./auth-modal";
+import PatientDashboard from "./patient-dashboard";
 
 type Service = { id: number; name: string; description: string; duration: string; price: number; icon: string; modes: string[] };
 type Nurse = { id: number; name: string; rating: number; specialization: string; location: { lat: number; lng: number; address: string }; distance: number; profilePicture: string; verified: boolean };
@@ -13,7 +14,7 @@ export default function Home() {
   const [services, setServices] = useState<Service[]>([]);
   const [loadingServices, setLoadingServices] = useState(true);
   const [appointments, setAppointments] = useState<any[]>([]);
-  const [view, setView] = useState<"patient" | "dashboard">("patient");
+  const [view, setView] = useState<"patient" | "dashboard" | "patient-dashboard">("patient");
   const [selected, setSelected] = useState<Service | null>(null);
   const [step, setStep] = useState(1);
   const [mode, setMode] = useState("Home visit");
@@ -228,6 +229,11 @@ export default function Home() {
                     {view === "patient" ? "Nurse dashboard" : "Patient website"}
                   </button>
                 )}
+                {user.role === "patient" && (
+                  <button className="login" onClick={() => { setView(view === "patient" ? "patient-dashboard" : "patient"); setMenu(false); }}>
+                    {view === "patient" ? "My Dashboard" : "Patient website"}
+                  </button>
+                )}
               </>
             ) : (
               <>
@@ -310,6 +316,8 @@ export default function Home() {
             </div>
           </section>
         </>
+      ) : view === "patient-dashboard" ? (
+        <PatientDashboard onBack={() => setView("patient")} />
       ) : (
         <Dashboard onBack={() => setView("patient")} />
       )}

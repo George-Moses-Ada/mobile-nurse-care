@@ -34,7 +34,7 @@ export async function POST(request: Request) {
       return Response.json(
         { error: "User not found. Please register first." },
         { status: 404 }
-      );
+      );45
     }
 
     // Generate 6-digit verification code

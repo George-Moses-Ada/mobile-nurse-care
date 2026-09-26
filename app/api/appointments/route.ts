@@ -93,7 +93,24 @@ export async function GET(request: Request) {
       appointments = appointments.filter((a: any) => a.nurseId === parseInt(nurseId));
     }
 
-    return Response.json({ appointments });
+    // Add nurse names to appointments (mock data for demo)
+    const mockNurses = [
+      { id: 1, name: "Dr. Sarah Johnson" },
+      { id: 2, name: "Nurse Emeka Okafor" },
+      { id: 3, name: "Dr. Aisha Ibrahim" },
+      { id: 4, name: "Nurse Chioma Nwosu" },
+      { id: 5, name: "Dr. Tunde Bakare" }
+    ];
+
+    const appointmentsWithNurseNames = appointments.map((appointment: any) => {
+      const nurse = mockNurses.find((n: any) => n.id === appointment.nurseId);
+      return {
+        ...appointment,
+        nurseName: nurse?.name || "Nurse TBA"
+      };
+    });
+
+    return Response.json({ appointments: appointmentsWithNurseNames });
   } catch (error) {
     console.error("Error fetching appointments:", error);
     return Response.json(
