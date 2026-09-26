@@ -223,17 +223,13 @@ export default function Home() {
             <a href="#about" onClick={() => setMenu(false)}>About me</a>
             {user ? (
               <>
-                <button className="login" onClick={() => { logout(); setMenu(false); }}>Sign out</button>
-                {user.role === "nurse" && (
-                  <button className="login" onClick={() => { setView(view === "patient" ? "dashboard" : "patient"); setMenu(false); }}>
-                    {view === "patient" ? "Nurse dashboard" : "Patient website"}
-                  </button>
-                )}
                 {user.role === "patient" && (
-                  <button className="login" onClick={() => { setView(view === "patient" ? "patient-dashboard" : "patient"); setMenu(false); }}>
-                    {view === "patient" ? "My Dashboard" : "Patient website"}
-                  </button>
+                  <button className="primary small" onClick={() => { setView("patient-dashboard"); setMenu(false); }}>My Dashboard</button>
                 )}
+                {user.role === "nurse" && (
+                  <button className="primary small" onClick={() => { setView("dashboard"); setMenu(false); }}>Nurse Dashboard</button>
+                )}
+                <button className="login" onClick={() => { logout(); setMenu(false); }}>Sign out</button>
               </>
             ) : (
               <>
@@ -241,7 +237,7 @@ export default function Home() {
                 <button className="primary small" onClick={() => { setAuthMode("register"); setAuthModal(true); setMenu(false); }}>Sign up</button>
               </>
             )}
-            {view === "patient" && user && <button className="primary small" onClick={() => { book(); setMenu(false); }}>Book appointment</button>}
+            {view === "patient" && user && user.role === "patient" && <button className="primary small" onClick={() => { book(); setMenu(false); }}>Book appointment</button>}
           </div>
         </nav>
       </header>
@@ -253,8 +249,17 @@ export default function Home() {
               <h1>Quality nursing care, <em>on your schedule.</em></h1>
               <p>Book a qualified mobile nurse for compassionate care at home or a private online consultation. Simple, safe and built around you.</p>
               <div className="hero-actions">
-                <button className="primary" onClick={() => book()}>Book a service <span>→</span></button>
-                <a href="#services" className="text-link">Explore services ↓</a>
+                {user && user.role === "patient" ? (
+                  <>
+                    <button className="primary" onClick={() => setView("patient-dashboard")}>My Dashboard <span>→</span></button>
+                    <button className="outline" onClick={() => book()}>Book a service</button>
+                  </>
+                ) : (
+                  <>
+                    <button className="primary" onClick={() => book()}>Book a service <span>→</span></button>
+                    <a href="#services" className="text-link">Explore services ↓</a>
+                  </>
+                )}
               </div>
               <div className="trust-row">
                 <span>✓ Licensed nurse</span>
