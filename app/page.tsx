@@ -182,13 +182,13 @@ export default function Home() {
   function loadNurses(userLat: number, userLng: number) {
     // Mock nurse data - in production this would come from an API
     const mockNurses: Nurse[] = [
-      { id: 1, name: "Sarah Johnson", rating: 4.8, specialization: "General Nursing", location: { lat: userLat + 0.01, lng: userLng + 0.01, address: "Near your location" }, distance: 1.5, profilePicture: "👩🏾‍⚕️", verified: true },
+      { id: 1, name: "Sarah Johnson", rating: 4.8, specialization: "General Nursing", location: { lat: userLat + 0.01, lng: userLng + 0.01, address: "Near your location" }, distance: 1.5, profilePicture: "local_hospital", verified: true },
       { id: 2, name: "Michael Adeyemi", rating: 4.9, specialization: "Elderly Care", location: { lat: userLat + 0.02, lng: userLng - 0.01, address: "2km away" }, distance: 2.3, profilePicture: "👨🏾‍⚕️", verified: true },
-      { id: 3, name: "Grace Okafor", rating: 4.7, specialization: "Wound Care", location: { lat: userLat - 0.01, lng: userLng + 0.02, address: "3km away" }, distance: 3.1, profilePicture: "👩🏽‍⚕️", verified: true },
+      { id: 3, name: "Grace Okafor", rating: 4.7, specialization: "Wound Care", location: { lat: userLat - 0.01, lng: userLng + 0.02, address: "3km away" }, distance: 3.1, profilePicture: "local_hospital", verified: true },
       { id: 4, name: "David Nnamdi", rating: 4.6, specialization: "Postnatal Care", location: { lat: userLat + 0.03, lng: userLng + 0.01, address: "5km away" }, distance: 5.2, profilePicture: "👨🏿‍⚕️", verified: false },
-      { id: 5, name: "Fatima Ibrahim", rating: 4.9, specialization: "General Nursing", location: { lat: userLat - 0.02, lng: userLng - 0.02, address: "8km away" }, distance: 8.4, profilePicture: "👩🏻‍⚕️", verified: true },
+      { id: 5, name: "Fatima Ibrahim", rating: 4.9, specialization: "General Nursing", location: { lat: userLat - 0.02, lng: userLng - 0.02, address: "8km away" }, distance: 8.4, profilePicture: "local_hospital", verified: true },
       { id: 6, name: "Emeka Okonkwo", rating: 4.5, specialization: "Injection Services", location: { lat: userLat + 0.05, lng: userLng - 0.03, address: "12km away" }, distance: 12.1, profilePicture: "👨🏾‍⚕️", verified: true },
-      { id: 7, name: "Amina Bello", rating: 4.8, specialization: "Elderly Care", location: { lat: userLat - 0.04, lng: userLng + 0.04, address: "15km away" }, distance: 15.3, profilePicture: "👩🏿‍⚕️", verified: true },
+      { id: 7, name: "Amina Bello", rating: 4.8, specialization: "Elderly Care", location: { lat: userLat - 0.04, lng: userLng + 0.04, address: "15km away" }, distance: 15.3, profilePicture: "local_hospital", verified: true },
       { id: 8, name: "Chinedu Okafor", rating: 4.7, specialization: "General Nursing", location: { lat: userLat + 0.06, lng: userLng + 0.02, address: "18km away" }, distance: 18.7, profilePicture: "👨🏽‍⚕️", verified: false },
     ];
     setNurses(mockNurses);
@@ -261,19 +261,19 @@ export default function Home() {
                 )}
               </div>
               <div className="trust-row">
-                <span>✓ Licensed nurse</span>
-                <span>✓ Secure payments</span>
-                <span>✓ Flexible scheduling</span>
+                <span><span className="material-icons" style={{fontSize: '16px', verticalAlign: 'middle', marginRight: '4px'}}>check_circle</span> Licensed nurse</span>
+                <span><span className="material-icons" style={{fontSize: '16px', verticalAlign: 'middle', marginRight: '4px'}}>check_circle</span> Secure payments</span>
+                <span><span className="material-icons" style={{fontSize: '16px', verticalAlign: 'middle', marginRight: '4px'}}>check_circle</span> Flexible scheduling</span>
               </div>
             </div>
             <div className="hero-art">
               <div className="blob" />
               <div className="nurse-card">
-                <div className="nurse-avatar">👩🏾‍⚕️</div>
+                <div className="nurse-avatar"><span className="material-icons" style={{fontSize: '80px'}}>local_hospital</span></div>
                 <div><small>Your mobile nurse</small><strong>Care that comes to you</strong><span><b>●</b> Available today</span></div>
               </div>
               <div className="floating-card top"><i>♡</i><div><strong>98%</strong><small>Patient satisfaction</small></div></div>
-              <div className="floating-card bottom"><i>✓</i><div><strong>Easy booking</strong><small>Pick a time in minutes</small></div></div>
+              <div className="floating-card bottom"><i><span className="material-icons">check_circle</span></i><div><strong>Easy booking</strong><small>Pick a time in minutes</small></div></div>
             </div>
           </section>
           <section className="stats">
@@ -296,7 +296,7 @@ export default function Home() {
                   <div className="badges">{s.modes.map(m => <span key={m}>{m}</span>)}</div>
                   <h3>{s.name}</h3>
                   <p>{s.description}</p>
-                  <div className="service-meta"><span>◷ {s.duration}</span><strong>From ₦{s.price.toLocaleString()}</strong></div>
+                  <div className="service-meta"><span><span className="material-icons" style={{fontSize: '14px', verticalAlign: 'middle', marginRight: '4px'}}>schedule</span> {s.duration}</span><strong>From ₦{s.price.toLocaleString()}</strong></div>
                   <button onClick={() => book(s)}>Book this service <span>→</span></button>
                 </article>
               ))}
@@ -308,8 +308,8 @@ export default function Home() {
               <h2>Care in three simple steps</h2>
               <div className="steps">
                 <div><b>01</b><i>✚</i><h3>Choose your service</h3><p>Select the care you need and whether you prefer a home or online session.</p></div>
-                <div><b>02</b><i>▦</i><h3>Pick a date & time</h3><p>See available appointment times and choose what fits your schedule.</p></div>
-                <div><b>03</b><i>✓</i><h3>Pay & get confirmed</h3><p>Pay securely with Paystack and receive your booking confirmation instantly.</p></div>
+                <div><b>02</b><i><span className="material-icons">calendar_today</span></i><h3>Pick a date & time</h3><p>See available appointment times and choose what fits your schedule.</p></div>
+                <div><b>03</b><i><span className="material-icons">check_circle</span></i><h3>Pay & get confirmed</h3><p>Pay securely with Paystack and receive your booking confirmation instantly.</p></div>
               </div>
             </div>
           </section>
@@ -346,7 +346,7 @@ export default function Home() {
             {!complete && <div className="progress"><span className={step >= 1 ? "active" : ""} /><span className={step >= 2 ? "active" : ""} /><span className={step >= 3 ? "active" : ""} /><span className={step >= 4 ? "active" : ""} /><span className={step >= 5 ? "active" : ""} /><span className={step >= 6 ? "active" : ""} /></div>}
             {complete ? (
               <div className="success">
-                <div>✓</div>
+                <div><span className="material-icons">check_circle</span></div>
                 <h3>You're booked!</h3>
                 <p>Your {mode.toLowerCase()} for <strong>{selected.name}</strong> is scheduled for August {day} at {time}.</p>
                 <div className="confirm-box"><span>Payment</span><strong>₦{total.toLocaleString()} · Paid</strong></div>
@@ -383,7 +383,7 @@ export default function Home() {
                         cursor: loadingLocation ? "not-allowed" : "pointer"
                       }}
                     >
-                      <span>📍</span>
+                      <span className="material-icons" style={{fontSize: '16px', verticalAlign: 'middle', marginRight: '4px'}}>location_on</span>
                       <span>{loadingLocation ? "Getting your location..." : "Use my current location"}</span>
                     </button>
                     <label>Or search for your address</label>
@@ -444,7 +444,7 @@ export default function Home() {
                         alignItems: "center",
                         gap: "8px"
                       }}>
-                        <span>✓</span>
+                        <span className="material-icons">check_circle</span>
                         <span>{location.address}</span>
                       </div>
                     )}
@@ -575,7 +575,7 @@ export default function Home() {
                                       fontSize: "11px",
                                       border: "2px solid #ffffff"
                                     }}>
-                                      ✓
+                                      <span className="material-icons">check_circle</span>
                                     </div>
                                   )}
                                 </div>
@@ -610,7 +610,7 @@ export default function Home() {
                                 borderTop: "1px solid var(--line)"
                               }}>
                                 <span style={{ fontSize: "12px", color: "var(--text-muted)" }}>
-                                  📍 {nurse.distance}km away
+                                  <span className="material-icons" style={{fontSize: '14px', verticalAlign: 'middle', marginRight: '4px'}}>location_on</span> {nurse.distance}km away
                                 </span>
                                 <button style={{
                                   padding: "6px 12px",
@@ -641,7 +641,7 @@ export default function Home() {
                         alignItems: "center",
                         gap: "8px"
                       }}>
-                        <span>✓</span>
+                        <span className="material-icons">check_circle</span>
                         <span>Selected: {selectedNurse.name} ({selectedNurse.specialization})</span>
                       </div>
                     )}
@@ -710,7 +710,7 @@ export default function Home() {
                                 className="remove-file"
                                 onClick={() => setUploadedFiles(uploadedFiles.filter((_, i) => i !== index))}
                               >
-                                ✕
+                                <span className="material-icons">cancel</span>
                               </button>
                             </div>
                           ))}
@@ -971,10 +971,10 @@ function Dashboard({ onBack }: { onBack: () => void }) {
         <button className="outline" onClick={onBack}>View patient website</button>
       </div>
       <div className="dash-stats">
-        <div><i>▦</i><span><small>Today's bookings</small><strong>{appointments.length}</strong></span></div>
-        <div><i>✓</i><span><small>Completed this week</small><strong>{completedCount}</strong></span></div>
-        <div><i>₦</i><span><small>Wallet balance</small><strong>₦{walletBalance.toLocaleString()}</strong></span></div>
-        <div><i>◷</i><span><small>Next appointment</small><strong>{nextAppointment?.time || "--:--"}</strong></span></div>
+        <div><i><span className="material-icons">calendar_today</span></i><span><small>Today's bookings</small><strong>{appointments.length}</strong></span></div>
+        <div><i><span className="material-icons">check_circle</span></i><span><small>Completed this week</small><strong>{completedCount}</strong></span></div>
+        <div><i><span className="material-icons">account_balance_wallet</span></i><span><small>Wallet balance</small><strong>₦{walletBalance.toLocaleString()}</strong></span></div>
+        <div><i><span className="material-icons">schedule</span></i><span><small>Next appointment</small><strong>{nextAppointment?.time || "--:--"}</strong></span></div>
       </div>
       <div className="dash-grid">
         <div className="schedule">
@@ -995,7 +995,7 @@ function Dashboard({ onBack }: { onBack: () => void }) {
                   <b>{a.patientName || `Patient #${a.userId}`}</b>
                   <small>{a.serviceName} · {a.mode}</small>
                   {a.patientPhone && <small>📞 {a.patientPhone}</small>}
-                  {a.patientAddress && <small>📍 {a.patientAddress}</small>}
+                  {a.patientAddress && <small><span className="material-icons" style={{fontSize: '14px', verticalAlign: 'middle', marginRight: '4px'}}>location_on</span> {a.patientAddress}</small>}
                 </div>
                 <span className={`status ${a.status.toLowerCase()}`}>{a.status}</span>
                 <button className="dots" onClick={(e) => { e.stopPropagation(); setSelectedAppointment(a); }}>•••</button>
@@ -1005,12 +1005,12 @@ function Dashboard({ onBack }: { onBack: () => void }) {
         </div>
         <aside className="quick">
           <h2>Quick actions</h2>
-          <button onClick={() => setQuickAction("add")}><i>＋</i><span><b>Add appointment</b><small>Create a booking manually</small></span></button>
-          <button onClick={() => setQuickAction("availability")}><i>▦</i><span><b>Manage availability</b><small>Set your working hours</small></span></button>
-          <button onClick={() => setQuickAction("wallet")}><i>💳</i><span><b>Wallet</b><small>Withdraw funds</small></span></button>
-          <button onClick={() => setQuickAction("payments")}><i>₦</i><span><b>Payment history</b><small>View transactions</small></span></button>
-          <button onClick={() => setQuickAction("profile")}><i>👤</i><span><b>Profile</b><small>Manage your profile</small></span></button>
-          <button onClick={() => setQuickAction("settings")}><i>⚙</i><span><b>Settings</b><small>Account preferences</small></span></button>
+          <button onClick={() => setQuickAction("add")}><i><span className="material-icons">add_circle</span></i><span><b>Add appointment</b><small>Create a booking manually</small></span></button>
+          <button onClick={() => setQuickAction("availability")}><i><span className="material-icons">calendar_today</span></i><span><b>Manage availability</b><small>Set your working hours</small></span></button>
+          <button onClick={() => setQuickAction("wallet")}><i><span className="material-icons">account_balance_wallet</span></i><span><b>Wallet</b><small>Withdraw funds</small></span></button>
+          <button onClick={() => setQuickAction("payments")}><i><span className="material-icons">payments</span></i><span><b>Payment history</b><small>View transactions</small></span></button>
+          <button onClick={() => setQuickAction("profile")}><i><span className="material-icons">person</span></i><span><b>Profile</b><small>Manage your profile</small></span></button>
+          <button onClick={() => setQuickAction("settings")}><i><span className="material-icons">settings</span></i><span><b>Settings</b><small>Account preferences</small></span></button>
         </aside>
         {quickAction && (
           <div className="modal-backdrop" onClick={() => setQuickAction(null)}>
@@ -1142,7 +1142,7 @@ function Dashboard({ onBack }: { onBack: () => void }) {
                         alignItems: "center",
                         gap: "8px"
                       }}>
-                        <span style={{ color: "var(--green)", fontSize: "16px" }}>✓</span>
+                        <span className="material-icons" style={{ color: "var(--green)", fontSize: "16px" }}>check_circle</span>
                         <span style={{ fontSize: "14px", color: "var(--ink)" }}>
                           <strong>Account Holder:</strong> {accountHolderName}
                         </span>
@@ -1237,14 +1237,14 @@ function Dashboard({ onBack }: { onBack: () => void }) {
                               justifyContent: "center",
                               fontSize: "24px"
                             }}>
-                              💰
+                              <span className="material-icons">account_balance_wallet</span>
                             </div>
                             <div style={{ flex: 1 }}>
                               <strong style={{ fontSize: "16px", marginBottom: "4px", display: "block" }}>₦{withdrawal.amount.toLocaleString()}</strong>
                               <small style={{ color: "var(--muted)" }}>{withdrawal.date} · {withdrawal.bank}</small>
                               {withdrawal.accountHolder && (
                                 <small style={{ color: "var(--green)", display: "block", marginTop: "2px" }}>
-                                  ✓ {withdrawal.accountHolder}
+                                  <span className="material-icons" style={{fontSize: '14px', verticalAlign: 'middle', marginRight: '4px'}}>check_circle</span> {withdrawal.accountHolder}
                                 </small>
                               )}
                             </div>
@@ -1388,21 +1388,21 @@ function Dashboard({ onBack }: { onBack: () => void }) {
                         </div>
                         <div className="verification-status">
                           <div className="verification-item verified">
-                            <span className="status-icon">✓</span>
+                            <span className="status-icon"><span className="material-icons">check_circle</span></span>
                             <div>
                               <strong>Identity Verification</strong>
                               <small>Verified on March 15, 2024</small>
                             </div>
                           </div>
                           <div className="verification-item verified">
-                            <span className="status-icon">✓</span>
+                            <span className="status-icon"><span className="material-icons">check_circle</span></span>
                             <div>
                               <strong>Nursing License</strong>
                               <small>Verified on March 15, 2024</small>
                             </div>
                           </div>
                           <div className="verification-item pending">
-                            <span className="status-icon">◷</span>
+                            <span className="status-icon"><span className="material-icons">schedule</span></span>
                             <div>
                               <strong>Background Check</strong>
                               <small>Pending verification</small>
@@ -1505,15 +1505,15 @@ function Dashboard({ onBack }: { onBack: () => void }) {
                         </div>
                         <div className="locations-list">
                           <div className="location-item">
-                            <span className="location-icon">📍</span>
+                            <span className="location-icon"><span className="material-icons">location_on</span></span>
                             <strong>Lagos Mainland</strong>
                           </div>
                           <div className="location-item">
-                            <span className="location-icon">📍</span>
+                            <span className="location-icon"><span className="material-icons">location_on</span></span>
                             <strong>Lagos Island</strong>
                           </div>
                           <div className="location-item">
-                            <span className="location-icon">📍</span>
+                            <span className="location-icon"><span className="material-icons">location_on</span></span>
                             <strong>Ikeja</strong>
                           </div>
                         </div>
@@ -1614,7 +1614,7 @@ function Dashboard({ onBack }: { onBack: () => void }) {
               <div className="form-body">
                 <div className="booking-summary-box">
                   <div className="summary-header">
-                    <div className="summary-icon">📋</div>
+                    <div className="summary-icon"><span className="material-icons">description</span></div>
                     <div>
                       <h3>Booking Summary</h3>
                       <p>#{selectedAppointment.id}</p>
@@ -1678,28 +1678,28 @@ function Dashboard({ onBack }: { onBack: () => void }) {
                   <label>Service Progress</label>
                   <div className="tracking-timeline">
                     <div className={`timeline-step ${selectedAppointment.status === 'pending' ? 'current' : ''} ${selectedAppointment.status !== 'pending' && selectedAppointment.status !== 'cancelled' ? 'completed' : ''}`}>
-                      <div className="step-icon">{selectedAppointment.status === 'pending' ? '◷' : selectedAppointment.status !== 'pending' && selectedAppointment.status !== 'cancelled' ? '✓' : '◷'}</div>
+                      <div className="step-icon">{selectedAppointment.status === 'pending' ? <span className="material-icons">schedule</span> : selectedAppointment.status !== 'pending' && selectedAppointment.status !== 'cancelled' ? <span className="material-icons">check_circle</span> : <span className="material-icons">schedule</span>}</div>
                       <div className="step-content">
                         <b>Pending Request</b>
                         <small>Awaiting nurse acceptance</small>
                       </div>
                     </div>
                     <div className={`timeline-step ${selectedAppointment.status === 'confirmed' ? 'current' : ''} ${selectedAppointment.status === 'in_progress' || selectedAppointment.status === 'completed' ? 'completed' : ''} ${selectedAppointment.status === 'pending' || selectedAppointment.status === 'cancelled' ? 'pending' : ''}`}>
-                      <div className="step-icon">{selectedAppointment.status === 'confirmed' ? '◷' : selectedAppointment.status === 'in_progress' || selectedAppointment.status === 'completed' ? '✓' : '◷'}</div>
+                      <div className="step-icon">{selectedAppointment.status === 'confirmed' ? <span className="material-icons">schedule</span> : selectedAppointment.status === 'in_progress' || selectedAppointment.status === 'completed' ? <span className="material-icons">check_circle</span> : <span className="material-icons">schedule</span>}</div>
                       <div className="step-content">
                         <b>Confirmed</b>
                         <small>Appointment accepted by nurse</small>
                       </div>
                     </div>
                     <div className={`timeline-step ${selectedAppointment.status === 'in_progress' ? 'current' : ''} ${selectedAppointment.status === 'completed' ? 'completed' : ''} ${selectedAppointment.status === 'pending' || selectedAppointment.status === 'confirmed' || selectedAppointment.status === 'cancelled' ? 'pending' : ''}`}>
-                      <div className="step-icon">{selectedAppointment.status === 'in_progress' ? '◷' : selectedAppointment.status === 'completed' ? '✓' : '◷'}</div>
+                      <div className="step-icon">{selectedAppointment.status === 'in_progress' ? <span className="material-icons">schedule</span> : selectedAppointment.status === 'completed' ? <span className="material-icons">check_circle</span> : <span className="material-icons">schedule</span>}</div>
                       <div className="step-content">
                         <b>In Progress</b>
                         <small>Nurse is providing care service</small>
                       </div>
                     </div>
                     <div className={`timeline-step ${selectedAppointment.status === 'completed' ? 'current completed' : ''} ${selectedAppointment.status !== 'completed' && selectedAppointment.status !== 'cancelled' ? 'pending' : ''}`}>
-                      <div className="step-icon">{selectedAppointment.status === 'completed' ? '✓' : '◷'}</div>
+                      <div className="step-icon">{selectedAppointment.status === 'completed' ? <span className="material-icons">check_circle</span> : <span className="material-icons">schedule</span>}</div>
                       <div className="step-content">
                         <b>Service Completed</b>
                         <small>Care service finished successfully</small>
@@ -1738,7 +1738,7 @@ function Dashboard({ onBack }: { onBack: () => void }) {
                             }
                           }}
                         >
-                          <span>✓</span> Confirm
+                          <span className="material-icons">check_circle</span> Confirm
                         </button>
                         <button 
                           className="status-btn cancel-btn"
@@ -1767,7 +1767,7 @@ function Dashboard({ onBack }: { onBack: () => void }) {
                             }
                           }}
                         >
-                          <span>✕</span> Reject
+                          <span className="material-icons">cancel</span> Reject
                         </button>
                       </div>
                     )}
@@ -1830,7 +1830,7 @@ function Dashboard({ onBack }: { onBack: () => void }) {
                             }
                           }}
                         >
-                          <span>✕</span> Cancel
+                          <span className="material-icons">cancel</span> Cancel
                         </button>
                       </div>
                     )}
@@ -1878,7 +1878,7 @@ function Dashboard({ onBack }: { onBack: () => void }) {
                               }
                             }}
                           >
-                            <span>✓</span> Finish Service
+                            <span className="material-icons">check_circle</span> Finish Service
                           </button>
                         </div>
                       </div>
@@ -1893,7 +1893,7 @@ function Dashboard({ onBack }: { onBack: () => void }) {
                     )}
                     {selectedAppointment.status === 'cancelled' && (
                       <div className="cancelled-message">
-                        <span className="cancelled-icon">✕</span>
+                        <span className="cancelled-icon"><span className="material-icons">cancel</span></span>
                         <p>This appointment has been cancelled</p>
                       </div>
                     )}
@@ -1916,7 +1916,7 @@ function Dashboard({ onBack }: { onBack: () => void }) {
                 <div className="calendar-view">
                   {appointments.length === 0 ? (
                     <div className="empty-state">
-                      <div className="empty-icon">📅</div>
+                      <div className="empty-icon"><span className="material-icons">event_busy</span></div>
                       <h3>No appointments yet</h3>
                       <p>Appointments will appear here once patients book services.</p>
                     </div>

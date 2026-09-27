@@ -115,11 +115,11 @@ export default function PatientDashboard({ onBack }: { onBack: () => void }) {
 
   const getStatusIcon = (status: string) => {
     switch (status) {
-      case "confirmed": return "✓";
-      case "in_progress": return "◷";
-      case "completed": return "✓";
-      case "cancelled": return "✕";
-      default: return "◷";
+      case "confirmed": return "check_circle";
+      case "in_progress": return "schedule";
+      case "completed": return "check_circle";
+      case "cancelled": return "cancel";
+      default: return "schedule";
     }
   };
 
@@ -178,10 +178,10 @@ export default function PatientDashboard({ onBack }: { onBack: () => void }) {
       </div>
 
       <div className="dash-stats">
-        <div><i>▦</i><span><small>Upcoming appointments</small><strong>{upcomingAppointments.length}</strong></span></div>
-        <div><i>✓</i><span><small>Completed</small><strong>{pastAppointments.length}</strong></span></div>
-        <div><i>💬</i><span><small>Video consultations</small><strong>{appointments.filter(a => a.mode === "Online").length}</strong></span></div>
-        <div><i>◷</i><span><small>Next appointment</small><strong>{upcomingAppointments[0]?.time || "--:--"}</strong></span></div>
+        <div><i><span className="material-icons">calendar_today</span></i><span><small>Upcoming appointments</small><strong>{upcomingAppointments.length}</strong></span></div>
+        <div><i><span className="material-icons">check_circle</span></i><span><small>Completed</small><strong>{pastAppointments.length}</strong></span></div>
+        <div><i><span className="material-icons">videocam</span></i><span><small>Video consultations</small><strong>{appointments.filter(a => a.mode === "Online").length}</strong></span></div>
+        <div><i><span className="material-icons">schedule</span></i><span><small>Next appointment</small><strong>{upcomingAppointments[0]?.time || "--:--"}</strong></span></div>
       </div>
 
       <div className="dash-grid">
@@ -222,7 +222,7 @@ export default function PatientDashboard({ onBack }: { onBack: () => void }) {
               borderRadius: "12px",
               color: "var(--text-muted)"
             }}>
-              <span style={{ fontSize: "48px", marginBottom: "16px", display: "block" }}>📅</span>
+              <span style={{ fontSize: "48px", marginBottom: "16px", display: "block" }}><span className="material-icons">event_busy</span></span>
               <p>No appointments found</p>
               <button 
                 className="primary" 
@@ -271,7 +271,7 @@ export default function PatientDashboard({ onBack }: { onBack: () => void }) {
                         </span>
                       </div>
                       <div style={{ color: "var(--text-muted)", fontSize: "14px" }}>
-                        📅 {appointment.date} at {appointment.time}
+                        <span className="material-icons" style={{fontSize: '14px', verticalAlign: 'middle', marginRight: '4px'}}>event</span> {appointment.date} at {appointment.time}
                       </div>
                     </div>
                     <span 
@@ -288,7 +288,7 @@ export default function PatientDashboard({ onBack }: { onBack: () => void }) {
                         gap: "4px"
                       }}
                     >
-                      <span>{getStatusIcon(appointment.status)}</span>
+                      <span className="material-icons" style={{fontSize: '14px'}}>{getStatusIcon(appointment.status)}</span>
                       {appointment.status.replace("_", " ").replace(/\b\w/g, c => c.toUpperCase())}
                     </span>
                   </div>
@@ -313,7 +313,7 @@ export default function PatientDashboard({ onBack }: { onBack: () => void }) {
                         marginBottom: "16px"
                       }}
                     >
-                      <span>📹</span> Join Video Call
+                      <span className="material-icons">videocam</span> Join Video Call
                     </button>
                   )}
 
@@ -326,7 +326,7 @@ export default function PatientDashboard({ onBack }: { onBack: () => void }) {
                       fontSize: "14px",
                       color: "var(--ink)"
                     }}>
-                      📍 {appointment.location}
+                      <span className="material-icons" style={{fontSize: '14px', verticalAlign: 'middle', marginRight: '4px'}}>location_on</span> {appointment.location}
                     </div>
                   )}
 
@@ -432,28 +432,28 @@ export default function PatientDashboard({ onBack }: { onBack: () => void }) {
         <aside className="quick-actions">
           <h2>Quick Actions</h2>
           <button onClick={onBack}>
-            <i>＋</i>
+            <i><span className="material-icons">add_circle</span></i>
             <span>
               <b>Book Appointment</b>
               <small>Schedule a new healthcare service</small>
             </span>
           </button>
           <button onClick={() => alert("Payment history coming soon")}>
-            <i>₦</i>
+            <i><span className="material-icons">payments</span></i>
             <span>
               <b>Payment History</b>
               <small>View past transactions</small>
             </span>
           </button>
           <button onClick={() => alert("Medical records coming soon")}>
-            <i>📋</i>
+            <i><span className="material-icons">description</span></i>
             <span>
               <b>Medical Records</b>
               <small>Access your health documents</small>
             </span>
           </button>
           <button onClick={() => alert("Settings coming soon")}>
-            <i>⚙</i>
+            <i><span className="material-icons">settings</span></i>
             <span>
               <b>Settings</b>
               <small>Account preferences</small>
@@ -475,7 +475,7 @@ export default function PatientDashboard({ onBack }: { onBack: () => void }) {
             <div className="form-body">
               <div className="booking-summary-box">
                 <div className="summary-header">
-                  <div className="summary-icon">📋</div>
+                  <div className="summary-icon"><span className="material-icons">description</span></div>
                   <div>
                     <h3>Booking Summary</h3>
                     <p>#{selectedAppointment.id}</p>
