@@ -214,29 +214,32 @@ export default function Home() {
             <span className="brand-mark">+</span>
             <span>Mobile Nurse<span>Care</span></span>
           </button>
-          <button className="menu-btn" onClick={() => setMenu(!menu)}>☰</button>
-          <div className={`menu-backdrop ${menu ? "open" : ""}`} onClick={() => setMenu(false)}></div>
-          <div className={`nav-links ${menu ? "open" : ""}`}>
-            <button className="menu-close" onClick={() => setMenu(false)}><span className="material-icons">close</span></button>
-            <a href="#services" onClick={() => setMenu(false)}>Services</a>
-            <a href="#how" onClick={() => setMenu(false)}>How it works</a>
-            <a href="#about" onClick={() => setMenu(false)}>About me</a>
-            {user ? (
-              <>
-                {user.role === "patient" && (
-                  <button className="primary small" onClick={() => { setView("patient-dashboard"); setMenu(false); }}>My Dashboard</button>
+          <button className="menu-btn" onClick={() => setMenu(!menu)}><span className="material-icons">menu</span></button>
+          <div className={`mobile-menu-overlay ${menu ? "active" : ""}`} onClick={() => setMenu(false)}>
+            <div className="mobile-menu-content" onClick={(e) => e.stopPropagation()}>
+              <button className="mobile-menu-close" onClick={() => setMenu(false)}><span className="material-icons">close</span></button>
+              <div className="mobile-menu-items">
+                <a href="#services" onClick={() => setMenu(false)}>Services</a>
+                <a href="#how" onClick={() => setMenu(false)}>How it works</a>
+                <a href="#about" onClick={() => setMenu(false)}>About me</a>
+                {user ? (
+                  <>
+                    {user.role === "patient" && (
+                      <button className="primary small" onClick={() => { setView("patient-dashboard"); setMenu(false); }}>My Dashboard</button>
+                    )}
+                    {user.role === "nurse" && (
+                      <button className="primary small" onClick={() => { setView("dashboard"); setMenu(false); }}>Nurse Dashboard</button>
+                    )}
+                    <button className="login" onClick={() => { logout(); setMenu(false); }}>Sign out</button>
+                  </>
+                ) : (
+                  <>
+                    <button className="login" onClick={() => { setAuthMode("login"); setAuthModal(true); setMenu(false); }}>Sign in</button>
+                    <button className="primary small" onClick={() => { setAuthMode("register"); setAuthModal(true); setMenu(false); }}>Sign up</button>
+                  </>
                 )}
-                {user.role === "nurse" && (
-                  <button className="primary small" onClick={() => { setView("dashboard"); setMenu(false); }}>Nurse Dashboard</button>
-                )}
-                <button className="login" onClick={() => { logout(); setMenu(false); }}>Sign out</button>
-              </>
-            ) : (
-              <>
-                <button className="login" onClick={() => { setAuthMode("login"); setAuthModal(true); setMenu(false); }}>Sign in</button>
-                <button className="primary small" onClick={() => { setAuthMode("register"); setAuthModal(true); setMenu(false); }}>Sign up</button>
-              </>
-            )}
+              </div>
+            </div>
           </div>
         </nav>
       </header>
