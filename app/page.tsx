@@ -745,7 +745,7 @@ export default function Home() {
                       <div className="payment-method">
                         <small>Payment method</small>
                         <div className="paystack-badge">
-                          <span>💳</span>
+                          <span className="material-icons">credit_card</span>
                           <span>Paystack Secure Payment</span>
                         </div>
                       </div>
@@ -1079,7 +1079,7 @@ function Dashboard({ onBack }: { onBack: () => void }) {
                       <div style={{ position: "absolute", bottom: "-30%", left: "-10%", width: "150px", height: "150px", background: "rgba(255,255,255,0.05)", borderRadius: "50%" }}></div>
                       <div style={{ position: "relative", zIndex: 1 }}>
                         <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "16px" }}>
-                          <span style={{ fontSize: "24px" }}>💳</span>
+                          <span className="material-icons" style={{ fontSize: "24px" }}>credit_card</span>
                           <span style={{ fontSize: "14px", opacity: 0.9 }}>Wallet Balance</span>
                         </div>
                         <strong style={{ fontSize: "42px", fontWeight: "700", marginBottom: "8px", display: "block" }}>₦{walletBalance.toLocaleString()}</strong>
@@ -1211,7 +1211,7 @@ function Dashboard({ onBack }: { onBack: () => void }) {
                           background: "var(--mint)",
                           borderRadius: "12px"
                         }}>
-                          <span style={{ fontSize: "48px", marginBottom: "16px", display: "block" }}>💳</span>
+                          <span style={{ fontSize: "48px", marginBottom: "16px", display: "block" }}><span className="material-icons">credit_card</span></span>
                           <p>No withdrawals yet</p>
                         </div>
                       ) : (
@@ -1314,7 +1314,7 @@ function Dashboard({ onBack }: { onBack: () => void }) {
                         </div>
                         <div className="profile-overview">
                           <div className="profile-avatar">
-                            <span>👤</span>
+                            <span className="material-icons">person</span>
                           </div>
                           <div className="profile-info">
                             <h4>{user?.name || "Nurse Name"}</h4>
@@ -1935,7 +1935,7 @@ function Dashboard({ onBack }: { onBack: () => void }) {
                               <span className={`status-badge ${a.status.toLowerCase()}`}>{a.status}</span>
                             </div>
                             <div className="patient-info">
-                              <span className="patient-icon">👤</span>
+                              <span className="patient-icon"><span className="material-icons">person</span></span>
                               <span>{a.patientName || `Patient #${a.userId}`}</span>
                             </div>
                             <div className="mode-info">

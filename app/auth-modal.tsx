@@ -119,7 +119,7 @@ export function AuthModal({ isOpen, onClose, defaultMode = "login" }: AuthModalP
                   className={role === "patient" ? "selected" : ""}
                   onClick={() => setRole("patient")}
                 >
-                  <b>👤</b>
+                  <b><span className="material-icons">person</span></b>
                   <span>Patient<small>I need nursing care</small></span>
                 </button>
                 <button
