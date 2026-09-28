@@ -217,7 +217,7 @@ export default function Home() {
           <button className="menu-btn" onClick={() => setMenu(!menu)}>☰</button>
           <div className={`menu-backdrop ${menu ? "open" : ""}`} onClick={() => setMenu(false)}></div>
           <div className={`nav-links ${menu ? "open" : ""}`}>
-            <button className={`menu-close ${menu ? "open" : ""}`} onClick={() => setMenu(false)}><span className="material-icons">close</span></button>
+            <button className="menu-close" onClick={() => setMenu(false)}><span className="material-icons">close</span></button>
             <a href="#services" onClick={() => setMenu(false)}>Services</a>
             <a href="#how" onClick={() => setMenu(false)}>How it works</a>
             <a href="#about" onClick={() => setMenu(false)}>About me</a>
