@@ -255,7 +255,7 @@ export default function Home() {
                   </>
                 ) : (
                   <>
-                    <button className="primary" onClick={() => book()}>Book a service <span>→</span></button>
+                    <button className="primary" onClick={() => document.getElementById('services')?.scrollIntoView({behavior: 'smooth'})}>Book a service <span>→</span></button>
                     <a href="#services" className="text-link">Explore services ↓</a>
                   </>
                 )}
