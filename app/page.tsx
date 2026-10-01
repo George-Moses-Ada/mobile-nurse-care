@@ -217,11 +217,7 @@ export default function Home() {
           <button className="menu-btn" onClick={() => setMenu(!menu)}><span className="material-icons">menu</span></button>
           <div className={`mobile-menu-overlay ${menu ? "active" : ""}`} onClick={() => setMenu(false)}>
             <div className="mobile-menu-content">
-              <div className="mobile-menu-header">
-                <span className="material-icons" style={{fontSize: '24px', color: 'var(--green)'}}>menu</span>
-                <span style={{fontSize: '18px', fontWeight: '700', color: 'var(--ink)'}}>Menu</span>
-                <button className="mobile-menu-close" onClick={() => setMenu(false)}><span className="material-icons">close</span></button>
-              </div>
+              <button className="mobile-menu-close" onClick={() => setMenu(false)}><span className="material-icons">close</span></button>
               <div className="mobile-menu-items">
                 <a href="#services" onClick={() => setMenu(false)}>Services</a>
                 <a href="#how" onClick={() => setMenu(false)}>How it works</a>
