@@ -1,5 +1,5 @@
 "use client";
-import { useMemo, useState, useEffect } from "react";
+import { useMemo, useState, useEffect, useRef } from "react";
 import { useAuth } from "./auth-context";
 import { AuthModal } from "./auth-modal";
 import PatientDashboard from "./patient-dashboard";
@@ -22,6 +22,74 @@ export default function Home() {
   const [time, setTime] = useState("10:30 AM");
   const [complete, setComplete] = useState(false);
   const [menu, setMenu] = useState(false);
+  const menuRef = useRef<HTMLDialogElement>(null);
+  const scrollPosition = useRef(0);
+  const savedStyles = useRef<any>(null);
+
+  const openMenu = () => {
+    const menu = menuRef.current;
+    if (!menu || menu.open) return;
+    
+    scrollPosition.current = window.scrollY;
+    savedStyles.current = {
+      position: document.body.style.position,
+      top: document.body.style.top,
+      width: document.body.style.width,
+      overflow: document.body.style.overflow
+    };
+    
+    Object.assign(document.body.style, {
+      position: "fixed",
+      top: `-${scrollPosition.current}px`,
+      width: "100%",
+      overflow: "hidden"
+    });
+    
+    menu.showModal();
+    setMenu(true);
+  };
+
+  const closeMenu = () => {
+    const menu = menuRef.current;
+    if (!menu || !menu.open) return;
+    
+    menu.close();
+    setMenu(false);
+    
+    if (savedStyles.current) {
+      Object.assign(document.body.style, savedStyles.current);
+      savedStyles.current = null;
+      window.scrollTo(0, scrollPosition.current);
+    }
+  };
+
+  // Handle menu events
+  useEffect(() => {
+    const menu = menuRef.current;
+    if (!menu) return;
+
+    const handleCancel = (e: Event) => {
+      e.preventDefault();
+      closeMenu();
+    };
+
+    const handleClose = () => {
+      if (menu.open) return;
+      if (savedStyles.current) {
+        Object.assign(document.body.style, savedStyles.current);
+        savedStyles.current = null;
+        window.scrollTo(0, scrollPosition.current);
+      }
+    };
+
+    menu.addEventListener("cancel", handleCancel);
+    menu.addEventListener("close", handleClose);
+
+    return () => {
+      menu.removeEventListener("cancel", handleCancel);
+      menu.removeEventListener("close", handleClose);
+    };
+  }, []);
   const [authModal, setAuthModal] = useState(false);
   const [authMode, setAuthMode] = useState<"login" | "register">("login");
   const [patientName, setPatientName] = useState("");
@@ -214,33 +282,45 @@ export default function Home() {
             <span className="brand-mark">+</span>
             <span>Mobile Nurse<span>Care</span></span>
           </button>
-          <button className="menu-btn" onClick={() => setMenu(!menu)}><span className="material-icons">menu</span></button>
-          <div className={`mobile-menu-overlay ${menu ? "active" : ""}`} onClick={() => setMenu(false)}>
-            <div className="mobile-menu-content">
-              <button className="mobile-menu-close" onClick={() => setMenu(false)}><span className="material-icons">close</span></button>
-              <div className="mobile-menu-items">
-                <a href="#services" onClick={() => setMenu(false)}>Services</a>
-                <a href="#how" onClick={() => setMenu(false)}>How it works</a>
-                <a href="#about" onClick={() => setMenu(false)}>About me</a>
-                {user ? (
-                  <>
-                    {user.role === "patient" && (
-                      <button className="primary small" onClick={() => { setView("patient-dashboard"); setMenu(false); }}>My Dashboard</button>
-                    )}
-                    {user.role === "nurse" && (
-                      <button className="primary small" onClick={() => { setView("dashboard"); setMenu(false); }}>Nurse Dashboard</button>
-                    )}
-                    <button className="login" onClick={() => { logout(); setMenu(false); }}>Sign out</button>
-                  </>
-                ) : (
-                  <>
-                    <button className="login" onClick={() => { setAuthMode("login"); setAuthModal(true); setMenu(false); }}>Sign in</button>
-                    <button className="primary small" onClick={() => { setAuthMode("register"); setAuthModal(true); setMenu(false); }}>Sign up</button>
-                  </>
-                )}
-              </div>
+          <button className="menu-btn" onClick={openMenu}><span className="material-icons">menu</span></button>
+          <dialog 
+            ref={menuRef}
+            id="mobile-menu"
+            aria-labelledby="mobile-menu-title"
+            className="mobile-menu-dialog"
+          >
+            <div className="mobile-menu-header">
+              <h2 id="mobile-menu-title">Menu</h2>
+              <button
+                className="mobile-menu-close"
+                onClick={closeMenu}
+                aria-label="Close menu"
+              >
+                <span className="material-icons">close</span>
+              </button>
             </div>
-          </div>
+            <nav className="mobile-menu-links" aria-label="Mobile navigation">
+              <a href="#services" onClick={closeMenu}>Services</a>
+              <a href="#how" onClick={closeMenu}>How it works</a>
+              <a href="#about" onClick={closeMenu}>About me</a>
+              {user ? (
+                <>
+                  {user.role === "patient" && (
+                    <button className="mobile-menu-booking" onClick={() => { setView("patient-dashboard"); closeMenu(); }}>My Dashboard</button>
+                  )}
+                  {user.role === "nurse" && (
+                    <button className="mobile-menu-booking" onClick={() => { setView("dashboard"); closeMenu(); }}>Nurse Dashboard</button>
+                  )}
+                  <a href="#" onClick={() => { logout(); closeMenu(); }}>Sign out</a>
+                </>
+              ) : (
+                <>
+                  <a href="#" onClick={() => { setAuthMode("login"); setAuthModal(true); closeMenu(); }}>Sign in</a>
+                  <button className="mobile-menu-booking" onClick={() => { setAuthMode("register"); setAuthModal(true); closeMenu(); }}>Sign up</button>
+                </>
+              )}
+            </nav>
+          </dialog>
         </nav>
       </header>
       {view === "patient" ? (
