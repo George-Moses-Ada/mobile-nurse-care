@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useAuth } from "./auth-context";
 
 type AuthModalProps = {
@@ -12,6 +12,13 @@ type AuthMode = "login" | "register" | "verify" | "forgot" | "reset";
 
 export function AuthModal({ isOpen, onClose, defaultMode = "login" }: AuthModalProps) {
   const [mode, setMode] = useState<AuthMode>(defaultMode);
+  
+  // Reset mode when modal opens
+  useEffect(() => {
+    if (isOpen) {
+      setMode(defaultMode);
+    }
+  }, [isOpen, defaultMode]);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
@@ -174,6 +181,22 @@ export function AuthModal({ isOpen, onClose, defaultMode = "login" }: AuthModalP
                 Resend code
               </button>
             </>
+          )}
+
+          {(mode === "login" || mode === "register") && (
+            <div className="social-login">
+              <div className="divider">
+                <span>Or continue with</span>
+              </div>
+              <button type="button" className="social-btn google" onClick={() => alert("Google authentication coming soon")}>
+                <span className="material-icons">g_mobiledata</span>
+                <span>Google</span>
+              </button>
+              <button type="button" className="social-btn apple" onClick={() => alert("Apple authentication coming soon")}>
+                <span className="material-icons">apple</span>
+                <span>Apple</span>
+              </button>
+            </div>
           )}
 
           {mode === "forgot" && (
