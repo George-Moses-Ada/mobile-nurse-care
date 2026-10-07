@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { useAuth } from "../../auth-context";
+import { useAuth } from "../auth-context";
 
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState("");

@@ -1,9 +1,9 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
-import { useAuth } from "../../auth-context";
+import { useAuth } from "../auth-context";
 
-export default function VerifyPage() {
+function VerifyPageContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const email = searchParams.get("email") || "";
@@ -102,5 +102,13 @@ export default function VerifyPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function VerifyPage() {
+  return (
+    <Suspense fallback={<div className="auth-page"><div className="auth-container"><div className="auth-card"><div className="auth-header"><span className="kicker">VERIFY EMAIL</span><h1>Verify your email</h1><p>Loading...</p></div></div></div></div>}>
+      <VerifyPageContent />
+    </Suspense>
   );
 }

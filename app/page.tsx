@@ -146,7 +146,7 @@ export default function Home() {
 
   function book(service: Service = services[0]) {
     if (!user) {
-      setAuthModal(true);
+      window.location.href = "/login";
       return;
     }
     setSelected(service);

@@ -1,9 +1,9 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
-import { useAuth } from "../../auth-context";
+import { useAuth } from "../auth-context";
 
-export default function ResetPasswordPage() {
+function ResetPasswordPageContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const email = searchParams.get("email") || "";
@@ -90,5 +90,13 @@ export default function ResetPasswordPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function ResetPasswordPage() {
+  return (
+    <Suspense fallback={<div className="auth-page"><div className="auth-container"><div className="auth-card"><div className="auth-header"><span className="kicker">RESET PASSWORD</span><h1>Enter reset code</h1><p>Loading...</p></div></div></div></div>}>
+      <ResetPasswordPageContent />
+    </Suspense>
   );
 }

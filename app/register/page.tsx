@@ -1,9 +1,9 @@
 "use client";
-import { useState, useEffect } from "react";
-import { useAuth } from "../../auth-context";
+import { useState, useEffect, Suspense } from "react";
+import { useAuth } from "../auth-context";
 import { useRouter, useSearchParams } from "next/navigation";
 
-export default function RegisterPage() {
+function RegisterPageContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const { googleLogin } = useAuth();
@@ -160,5 +160,13 @@ export default function RegisterPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function RegisterPage() {
+  return (
+    <Suspense fallback={<div className="auth-page"><div className="auth-container"><div className="auth-card"><div className="auth-header"><span className="kicker">CREATE ACCOUNT</span><h1>Join Mobile Nurse Care</h1><p>Loading...</p></div></div></div></div>}>
+      <RegisterPageContent />
+    </Suspense>
   );
 }
