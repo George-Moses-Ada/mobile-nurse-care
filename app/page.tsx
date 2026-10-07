@@ -280,6 +280,27 @@ export default function Home() {
             <span className="brand-mark">+</span>
             <span>Mobile Nurse<span>Care</span></span>
           </button>
+          <div className="nav-links">
+            <a href="#services">Services</a>
+            <a href="#how">How it works</a>
+            <a href="#about">About me</a>
+            {user ? (
+              <>
+                {user.role === "patient" && (
+                  <button className="nav-btn primary" onClick={() => setView("patient-dashboard")}>My Dashboard</button>
+                )}
+                {user.role === "nurse" && (
+                  <button className="nav-btn primary" onClick={() => setView("dashboard")}>Nurse Dashboard</button>
+                )}
+                <button className="nav-btn" onClick={() => logout()}>Sign out</button>
+              </>
+            ) : (
+              <>
+                <a href="/login" className="nav-btn">Sign in</a>
+                <a href="/register" className="nav-btn primary">Sign up</a>
+              </>
+            )}
+          </div>
           <button className="menu-btn" onClick={openMenu}><span className="material-icons">menu</span></button>
           <dialog 
             ref={menuRef}
