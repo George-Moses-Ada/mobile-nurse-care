@@ -1,7 +1,6 @@
 "use client";
 import { useMemo, useState, useEffect, useRef } from "react";
 import { useAuth } from "./auth-context";
-import { AuthModal } from "./auth-modal";
 import PatientDashboard from "./patient-dashboard";
 
 type Service = { id: number; name: string; description: string; duration: string; price: number; icon: string; modes: string[] };
@@ -90,8 +89,7 @@ export default function Home() {
       menu.removeEventListener("close", handleClose);
     };
   }, []);
-  const [authModal, setAuthModal] = useState(false);
-  const [authMode, setAuthMode] = useState<"login" | "register">("login");
+
   const [patientName, setPatientName] = useState("");
   const [patientPhone, setPatientPhone] = useState("");
   const [patientAddress, setPatientAddress] = useState("");
@@ -315,8 +313,8 @@ export default function Home() {
                 </>
               ) : (
                 <>
-                  <a href="#" onClick={() => { setAuthMode("login"); setAuthModal(true); closeMenu(); }}>Sign in</a>
-                  <button className="mobile-menu-booking" onClick={() => { setAuthMode("register"); setAuthModal(true); closeMenu(); }}>Sign up</button>
+                  <a href="/login" onClick={closeMenu}>Sign in</a>
+                  <a href="/register" className="mobile-menu-booking" onClick={closeMenu}>Sign up</a>
                 </>
               )}
             </nav>
@@ -418,7 +416,6 @@ export default function Home() {
           <div className="copyright shell">© 2026 Mobile Nurse Care. Your health information stays private.</div>
         </footer>
       )}
-      <AuthModal isOpen={authModal} onClose={() => setAuthModal(false)} defaultMode={authMode} />
       {selected && (
         <div className="modal-backdrop" onClick={() => setSelected(null)}>
           <div className="modal" onClick={(e) => e.stopPropagation()}>
@@ -840,8 +837,7 @@ export default function Home() {
                         
                         if (!user) {
                           alert("Please log in to book an appointment");
-                          setAuthModal(true);
-                          setAuthMode("login");
+                          window.location.href = "/login";
                           return;
                         }
                         

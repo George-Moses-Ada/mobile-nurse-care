@@ -19,6 +19,7 @@ type AuthContextType = {
   verifyEmail: (email: string, code: string) => Promise<void>;
   forgotPassword: (email: string) => Promise<string>;
   resetPassword: (email: string, code: string, newPassword: string) => Promise<void>;
+  googleLogin: (googleData: any) => Promise<void>;
   loading: boolean;
 };
 
@@ -170,8 +171,26 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
+  const googleLogin = async (googleData: any) => {
+    const response = await fetch("/api/auth/google-login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(googleData),
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.error || "Google login failed");
+    }
+
+    const data = await response.json();
+    setToken(data.token);
+    setUser(data.user);
+    localStorage.setItem("auth_token", data.token);
+  };
+
   return (
-    <AuthContext.Provider value={{ user, token, login, register, logout, sendVerification, verifyEmail, forgotPassword, resetPassword, loading }}>
+    <AuthContext.Provider value={{ user, token, login, register, logout, sendVerification, verifyEmail, forgotPassword, resetPassword, googleLogin, loading }}>
       {children}
     </AuthContext.Provider>
   );

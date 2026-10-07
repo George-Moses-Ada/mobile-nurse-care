@@ -1,0 +1,164 @@
+"use client";
+import { useState, useEffect } from "react";
+import { useAuth } from "../../auth-context";
+import { useRouter, useSearchParams } from "next/navigation";
+
+export default function RegisterPage() {
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const { googleLogin } = useAuth();
+  
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [name, setName] = useState("");
+  const [role, setRole] = useState<"patient" | "nurse">("patient");
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState("");
+  const { register, sendVerification } = useAuth();
+
+  // Handle Google OAuth callback
+  useEffect(() => {
+    const googleEmail = searchParams.get("email");
+    const googleName = searchParams.get("name");
+    const googleId = searchParams.get("google_id");
+    const picture = searchParams.get("picture");
+
+    if (googleEmail && googleId) {
+      // Auto-login with Google credentials
+      handleGoogleAuth({ email: googleEmail, name: googleName, google_id: googleId, picture });
+    }
+  }, [searchParams]);
+
+  const handleGoogleAuth = async (googleData: any) => {
+    try {
+      await googleLogin(googleData);
+      router.push("/");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Google login failed");
+    }
+  };
+
+  const handleGoogleLogin = () => {
+    const clientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
+    const redirectUri = `${process.env.NEXT_PUBLIC_URL || 'http://localhost:3000'}/api/auth/callback/google`;
+    const scope = 'email profile';
+    const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=code&scope=${encodeURIComponent(scope)}`;
+    window.location.href = authUrl;
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError("");
+    setLoading(true);
+
+    try {
+      await register(email, password, name, role);
+      // Send verification code
+      try {
+        const code = await sendVerification(email);
+        setMessage(`Verification code sent to ${email}. Your code is: ${code}`);
+        // Redirect to verify page
+        router.push(`/verify?email=${email}`);
+      } catch (verifyError) {
+        setError(verifyError instanceof Error ? verifyError.message : "Failed to send verification code");
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Registration failed");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="auth-page">
+      <div className="auth-container">
+        <div className="auth-card">
+          <div className="auth-header">
+            <span className="kicker">CREATE ACCOUNT</span>
+            <h1>Join Mobile Nurse Care</h1>
+            <p>Create your account to get started</p>
+          </div>
+          
+          {error && <div className="error-message">{error}</div>}
+          {message && <div className="success-message">{message}</div>}
+          
+          <form onSubmit={handleSubmit}>
+            <label>Full name</label>
+            <input
+              type="text"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              required
+              placeholder="Enter your full name"
+            />
+            
+            <label>I am a</label>
+            <div className="choice-row">
+              <button
+                type="button"
+                className={role === "patient" ? "selected" : ""}
+                onClick={() => setRole("patient")}
+              >
+                <b><span className="material-icons">person</span></b>
+                <span>Patient<small>I need nursing care</small></span>
+              </button>
+              <button
+                type="button"
+                className={role === "nurse" ? "selected" : ""}
+                onClick={() => setRole("nurse")}
+              >
+                <b><span className="material-icons">local_hospital</span></b>
+                <span>Nurse<small>I provide care services</small></span>
+              </button>
+            </div>
+            
+            <label>Email address</label>
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+              placeholder="Enter your email"
+            />
+            
+            <label>Password</label>
+            <input
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+              placeholder="Enter your password"
+              minLength={6}
+            />
+            
+            <button type="submit" className="primary wide" disabled={loading}>
+              {loading ? "Creating account..." : "Create Account"}
+            </button>
+          </form>
+
+          <div className="social-login">
+            <div className="divider">
+              <span>Or continue with</span>
+            </div>
+            <button type="button" className="social-btn google" onClick={handleGoogleLogin}>
+              <span className="material-icons">g_mobiledata</span>
+              <span>Google</span>
+            </button>
+            <button type="button" className="social-btn apple" onClick={() => alert("Apple authentication coming soon")}>
+              <span className="material-icons">apple</span>
+              <span>Apple</span>
+            </button>
+          </div>
+
+          <div className="auth-footer">
+            <p>
+              Already have an account?{" "}
+              <a href="/login">Sign in</a>
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
