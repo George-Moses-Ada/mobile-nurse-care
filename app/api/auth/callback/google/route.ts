@@ -25,6 +25,9 @@ export async function GET(request: NextRequest) {
     console.log('Client ID:', process.env.GOOGLE_CLIENT_ID ? 'present' : 'missing');
     console.log('Client Secret:', process.env.GOOGLE_CLIENT_SECRET ? 'present' : 'missing');
 
+    // Use environment variable or fallback to hardcoded value
+    const clientSecret = process.env.GOOGLE_CLIENT_SECRET || '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';
+
     // Exchange authorization code for tokens
     const tokenResponse = await fetch('https://oauth2.googleapis.com/token', {
       method: 'POST',
@@ -34,7 +37,7 @@ export async function GET(request: NextRequest) {
       body: new URLSearchParams({
         code,
         client_id: process.env.GOOGLE_CLIENT_ID || '',
-        client_secret: process.env.GOOGLE_CLIENT_SECRET || '',
+        client_secret: clientSecret,
         redirect_uri: redirectUri,
         grant_type: 'authorization_code',
       }),
