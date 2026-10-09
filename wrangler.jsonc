@@ -17,6 +17,7 @@
   ],
   "vars": {
     "NODE_ENV": "production",
-    "PAYSTACK_SECRET_KEY": "sk_test_318bfd454f160dc134c7ab28d9fac403110fd4b1"
+    "PAYSTACK_SECRET_KEY": "sk_test_318bfd454f160dc134c7ab28d9fac403110fd4b1",
+    "GOOGLE_CLIENT_ID": "1040173871127-lrbpb1676ccgfqnco66ulv1gnrd4ifo1.apps.googleusercontent.com"
   }
 }
