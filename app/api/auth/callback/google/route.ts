@@ -14,6 +14,9 @@ export async function GET(request: NextRequest) {
   }
 
   try {
+    // Build redirect URI from request
+    const redirectUri = `${request.nextUrl.origin}/api/auth/callback/google`;
+
     // Exchange authorization code for tokens
     const tokenResponse = await fetch('https://oauth2.googleapis.com/token', {
       method: 'POST',
@@ -24,7 +27,7 @@ export async function GET(request: NextRequest) {
         code,
         client_id: process.env.GOOGLE_CLIENT_ID || '',
         client_secret: process.env.GOOGLE_CLIENT_SECRET || '',
-        redirect_uri: `${process.env.NEXT_PUBLIC_URL || 'http://localhost:3000'}/api/auth/callback/google`,
+        redirect_uri: redirectUri,
         grant_type: 'authorization_code',
       }),
     });
@@ -32,6 +35,7 @@ export async function GET(request: NextRequest) {
     const tokenData = await tokenResponse.json();
 
     if (tokenData.error) {
+      console.error('Token error:', tokenData);
       return NextResponse.redirect('/login?error=token_error');
     }
 

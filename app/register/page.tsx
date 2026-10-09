@@ -15,7 +15,16 @@ function RegisterPageContent() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
+  const [googleClientId, setGoogleClientId] = useState("");
   const { register, sendVerification } = useAuth();
+
+  useEffect(() => {
+    // Fetch Google Client ID from API
+    fetch('/api/auth/google-config')
+      .then(res => res.json())
+      .then(data => setGoogleClientId(data.googleClientId))
+      .catch(err => console.error('Failed to fetch Google config:', err));
+  }, []);
 
   // Handle Google OAuth callback
   useEffect(() => {
@@ -40,10 +49,13 @@ function RegisterPageContent() {
   };
 
   const handleGoogleLogin = () => {
-    const clientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
-    const redirectUri = `${process.env.NEXT_PUBLIC_URL || 'http://localhost:3000'}/api/auth/callback/google`;
+    if (!googleClientId) {
+      alert("Google authentication is not configured");
+      return;
+    }
+    const redirectUri = `${window.location.origin}/api/auth/callback/google`;
     const scope = 'email profile';
-    const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=code&scope=${encodeURIComponent(scope)}`;
+    const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${googleClientId}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=code&scope=${encodeURIComponent(scope)}`;
     window.location.href = authUrl;
   };
 

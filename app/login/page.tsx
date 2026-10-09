@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useAuth } from "../auth-context";
 import { useRouter } from "next/navigation";
 
@@ -8,8 +8,17 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [googleClientId, setGoogleClientId] = useState("");
   const { login, googleLogin } = useAuth();
   const router = useRouter();
+
+  useEffect(() => {
+    // Fetch Google Client ID from API
+    fetch('/api/auth/google-config')
+      .then(res => res.json())
+      .then(data => setGoogleClientId(data.googleClientId))
+      .catch(err => console.error('Failed to fetch Google config:', err));
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -27,10 +36,13 @@ export default function LoginPage() {
   };
 
   const handleGoogleLogin = () => {
-    const clientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
-    const redirectUri = `${process.env.NEXT_PUBLIC_URL || 'http://localhost:3000'}/api/auth/callback/google`;
+    if (!googleClientId) {
+      alert("Google authentication is not configured");
+      return;
+    }
+    const redirectUri = `${window.location.origin}/api/auth/callback/google`;
     const scope = 'email profile';
-    const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=code&scope=${encodeURIComponent(scope)}`;
+    const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${googleClientId}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=code&scope=${encodeURIComponent(scope)}`;
     window.location.href = authUrl;
   };
 
@@ -75,7 +87,7 @@ export default function LoginPage() {
             <div className="divider">
               <span>Or continue with</span>
             </div>
-            <button type="button" className="social-btn google" onClick={handleGoogleLogin}>
+            <button type="button" className="social-btn google" onClick={handleGoogleLogin} disabled={!googleClientId}>
               <span className="material-icons">g_mobiledata</span>
               <span>Google</span>
             </button>
