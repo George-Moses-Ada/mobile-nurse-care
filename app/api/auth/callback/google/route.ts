@@ -5,17 +5,24 @@ export async function GET(request: NextRequest) {
   const code = searchParams.get('code');
   const error = searchParams.get('error');
 
+  console.log('Google OAuth callback:', { code: code ? 'present' : 'missing', error });
+
   if (error) {
+    console.error('OAuth error from Google:', error);
     return NextResponse.redirect('/login?error=oauth_error');
   }
 
   if (!code) {
+    console.error('No authorization code received');
     return NextResponse.redirect('/login?error=no_code');
   }
 
   try {
     // Build redirect URI from request
     const redirectUri = `${request.nextUrl.origin}/api/auth/callback/google`;
+    console.log('Redirect URI:', redirectUri);
+    console.log('Client ID:', process.env.GOOGLE_CLIENT_ID ? 'present' : 'missing');
+    console.log('Client Secret:', process.env.GOOGLE_CLIENT_SECRET ? 'present' : 'missing');
 
     // Exchange authorization code for tokens
     const tokenResponse = await fetch('https://oauth2.googleapis.com/token', {
@@ -33,10 +40,12 @@ export async function GET(request: NextRequest) {
     });
 
     const tokenData = await tokenResponse.json();
+    console.log('Token response status:', tokenResponse.status);
+    console.log('Token response:', JSON.stringify(tokenData));
 
     if (tokenData.error) {
       console.error('Token error:', tokenData);
-      return NextResponse.redirect('/login?error=token_error');
+      return NextResponse.redirect('/login?error=token_error&details=' + encodeURIComponent(tokenData.error_description || tokenData.error));
     }
 
     // Get user info from Google
@@ -47,6 +56,7 @@ export async function GET(request: NextRequest) {
     });
 
     const userInfo = await userInfoResponse.json();
+    console.log('User info:', JSON.stringify(userInfo));
 
     // Create or get user in your system
     // For now, redirect to register with the user info
@@ -60,6 +70,6 @@ export async function GET(request: NextRequest) {
     return NextResponse.redirect(`/register?${params.toString()}`);
   } catch (error) {
     console.error('Google OAuth error:', error);
-    return NextResponse.redirect('/login?error=oauth_failed');
+    return NextResponse.redirect('/login?error=oauth_failed&details=' + encodeURIComponent(error instanceof Error ? error.message : 'Unknown error'));
   }
 }
