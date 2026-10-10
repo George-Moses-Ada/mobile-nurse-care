@@ -29,7 +29,7 @@ export async function GET(request: NextRequest) {
     console.log('Client Secret Fallback:', process.env.GOOGLE_CLIENT_SECRET_FALLBACK ? 'present' : 'missing');
 
     // Use environment variable or fallback to secondary variable
-    const clientSecret = process.env.GOOGLE_CLIENT_SECRET || process.env.GOOGLE_CLIENT_SECRET_FALLBACK;
+    const clientSecret = process.env.GOOGLE_CLIENT_SECRET || process.env.GOOGLE_CLIENT_SECRET_FALLBACK || '';
 
     console.log('About to fetch token from Google...');
 
